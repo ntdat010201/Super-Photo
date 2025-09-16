@@ -1,0 +1,56 @@
+{
+  "detection_patterns": {
+    "android": ["android", "kotlin", "java", "gradle", "AndroidManifest.xml"],
+    "ios": ["ios", "swift", "xcode", "cocoapods", "Info.plist"],
+    "react": ["react", "jsx", "tsx", "next.js", "package.json"],
+    "node": ["node", "express", "npm", "package.json", "server.js"],
+    "mobile": ["mobile", "app", "react-native", "flutter"],
+    "web": ["web", "html", "css", "javascript", "typescript"],
+    "backend": ["api", "server", "database", "backend"],
+    "frontend": ["frontend", "ui", "component", "view"]
+  },
+  "rule_activation": {
+    "immediate": [
+      "#base-rules",
+      "#development-rules",
+      "#file-protection-rules",
+      "#file-organization-rules"
+    ],
+    "context_based": [
+      "#mobile-*",
+      "#web-*",
+      "#android-*",
+      "#ios-*",
+      "#frontend-*",
+      "#backend-*"
+    ],
+    "on_demand": [
+      "#kiro-*",
+      "#weather-*",
+      "#gemini-*",
+      "#context7-*"
+    ]
+  },
+  "priority_levels": {
+    "critical": [
+      "#base-rules",
+      "#development-rules",
+      "#file-protection-rules"
+    ],
+    "high": [
+      "#android-workflow",
+      "#ios-workflow",
+      "#frontend-rules",
+      "#backend-rules-optimized"
+    ],
+    "medium": [
+      "#planning-workflow",
+      "#brainstorm-workflow",
+      "#git-workflow"
+    ],
+    "low": [
+      "#weather-basic-workflow",
+      "#system-review-summary"
+    ]
+  }
+}

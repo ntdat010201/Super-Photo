@@ -1,0 +1,702 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TSDDR 2.0 Configuration",
+  "description": "Configuration file for Test-Specification-Driven Development & Revenue 2.0 workflow",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Project name",
+          "example": "My AI Revenue App"
+        },
+        "version": {
+          "type": "string",
+          "description": "Project version",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "example": "1.0.0"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["mobile", "web", "desktop", "api", "fullstack"],
+          "description": "Project type"
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["ios", "android", "web", "desktop", "api"]
+          },
+          "description": "Target platforms"
+        }
+      },
+      "required": ["name", "version", "type"]
+    },
+    "tsddr": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "2.0",
+          "description": "TSDDR version"
+        },
+        "current_stage": {
+          "type": "string",
+          "enum": ["requirements", "design", "tasks", "execution", "test", "review"],
+          "description": "Current TSDDR stage"
+        },
+        "feature_name": {
+          "type": "string",
+          "description": "Current feature being developed"
+        },
+        "branch_strategy": {
+          "type": "string",
+          "enum": ["tsddr-hierarchical", "feature-branch", "gitflow"],
+          "default": "tsddr-hierarchical",
+          "description": "Git branching strategy"
+        },
+        "stages": {
+          "type": "object",
+          "properties": {
+            "requirements": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["pending", "in_progress", "completed", "skipped"]
+                },
+                "deliverables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "requirements.md",
+                    "acceptance-criteria.md",
+                    "user-stories.md"
+                  ]
+                },
+                "quality_gates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "requirements_documented",
+                    "acceptance_criteria_defined",
+                    "stakeholder_approval"
+                  ]
+                }
+              }
+            },
+            "design": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["pending", "in_progress", "completed", "skipped"]
+                },
+                "deliverables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "architecture.md",
+                    "ai-integration-design.md",
+                    "revenue-optimization-plan.md",
+                    "ui-mockups",
+                    "api-specifications.md"
+                  ]
+                },
+                "quality_gates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "architecture_reviewed",
+                    "ai_design_validated",
+                    "revenue_strategy_approved",
+                    "technical_feasibility_confirmed"
+                  ]
+                }
+              }
+            },
+            "tasks": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["pending", "in_progress", "completed", "skipped"]
+                },
+                "deliverables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "task-breakdown.md",
+                    "test-specifications.md",
+                    "implementation-plan.md",
+                    "sprint-planning.md"
+                  ]
+                },
+                "quality_gates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "tasks_defined",
+                    "test_cases_specified",
+                    "estimates_provided",
+                    "dependencies_identified"
+                  ]
+                }
+              }
+            },
+            "execution": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["pending", "in_progress", "completed", "skipped"]
+                },
+                "deliverables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "source-code",
+                    "unit-tests",
+                    "integration-tests",
+                    "ai-components",
+                    "revenue-features",
+                    "regional-adaptations"
+                  ]
+                },
+                "quality_gates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "code_quality_check",
+                    "unit_tests_passing",
+                    "integration_tests_passing",
+                    "ai_components_validated",
+                    "revenue_features_tested",
+                    "security_scan_passed"
+                  ]
+                }
+              }
+            },
+            "test": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["pending", "in_progress", "completed", "skipped"]
+                },
+                "deliverables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "test-reports",
+                    "coverage-reports",
+                    "performance-reports",
+                    "ai-validation-reports",
+                    "revenue-testing-reports",
+                    "regional-testing-reports"
+                  ]
+                },
+                "quality_gates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "test_coverage_threshold",
+                    "performance_benchmarks",
+                    "ai_accuracy_targets",
+                    "revenue_flow_validation",
+                    "regional_compliance_check",
+                    "user_acceptance_testing"
+                  ]
+                }
+              }
+            },
+            "review": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["pending", "in_progress", "completed", "skipped"]
+                },
+                "deliverables": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "code-review-report",
+                    "security-review-report",
+                    "performance-review-report",
+                    "ai-review-report",
+                    "revenue-review-report",
+                    "deployment-checklist"
+                  ]
+                },
+                "quality_gates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "code_review_approved",
+                    "security_review_passed",
+                    "performance_review_passed",
+                    "ai_review_approved",
+                    "revenue_review_approved",
+                    "deployment_ready"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["version", "current_stage"]
+    },
+    "ai_integration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable AI integration features"
+        },
+        "frameworks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["tensorflow", "pytorch", "openai", "huggingface", "custom"]
+          },
+          "description": "AI frameworks used"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["classification", "regression", "nlp", "computer_vision", "recommendation"]
+              },
+              "accuracy_threshold": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "default": 0.85
+              }
+            },
+            "required": ["name", "type"]
+          }
+        },
+        "testing": {
+          "type": "object",
+          "properties": {
+            "accuracy_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.85,
+              "description": "Minimum accuracy threshold for AI models"
+            },
+            "performance_threshold_ms": {
+              "type": "number",
+              "minimum": 0,
+              "default": 500,
+              "description": "Maximum response time for AI inference (ms)"
+            },
+            "bias_testing": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable bias testing for AI models"
+            }
+          }
+        }
+      }
+    },
+    "revenue_optimization": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable revenue optimization features"
+        },
+        "strategies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["iap", "subscriptions", "advertising", "freemium", "premium"]
+          },
+          "description": "Revenue strategies implemented"
+        },
+        "payment_providers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["stripe", "paypal", "apple_pay", "google_pay", "local_providers"]
+          },
+          "description": "Payment providers integrated"
+        },
+        "ad_networks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["admob", "facebook", "unity", "applovin", "ironsource"]
+          },
+          "description": "Ad networks integrated"
+        },
+        "analytics": {
+          "type": "object",
+          "properties": {
+            "providers": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["firebase", "mixpanel", "amplitude", "custom"]
+              }
+            },
+            "kpis": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["arpu", "ltv", "cac", "conversion_rate", "churn_rate"]
+              },
+              "default": ["arpu", "ltv", "conversion_rate"]
+            }
+          }
+        },
+        "testing": {
+          "type": "object",
+          "properties": {
+            "conversion_rate_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.02,
+              "description": "Minimum conversion rate threshold"
+            },
+            "revenue_tracking_accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.99,
+              "description": "Revenue tracking accuracy requirement"
+            }
+          }
+        }
+      }
+    },
+    "regional_adaptation": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable regional adaptation features"
+        },
+        "target_regions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$",
+                "description": "ISO 3166-1 alpha-2 country code"
+              },
+              "name": {
+                "type": "string",
+                "description": "Country/region name"
+              },
+              "language": {
+                "type": "string",
+                "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+                "description": "Language code (ISO 639-1)"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$",
+                "description": "Currency code (ISO 4217)"
+              },
+              "priority": {
+                "type": "string",
+                "enum": ["high", "medium", "low"],
+                "default": "medium"
+              }
+            },
+            "required": ["code", "name", "language", "currency"]
+          },
+          "default": [
+            {
+              "code": "VN",
+              "name": "Vietnam",
+              "language": "vi",
+              "currency": "VND",
+              "priority": "high"
+            }
+          ]
+        },
+        "localization": {
+          "type": "object",
+          "properties": {
+            "framework": {
+              "type": "string",
+              "enum": ["react-i18next", "vue-i18n", "angular-i18n", "ios-localization", "android-localization"],
+              "description": "Localization framework"
+            },
+            "translation_keys": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Number of translation keys"
+            },
+            "completion_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.95,
+              "description": "Translation completion threshold"
+            }
+          }
+        },
+        "compliance": {
+          "type": "object",
+          "properties": {
+            "gdpr": {
+              "type": "boolean",
+              "default": false,
+              "description": "GDPR compliance required"
+            },
+            "ccpa": {
+              "type": "boolean",
+              "default": false,
+              "description": "CCPA compliance required"
+            },
+            "local_regulations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Local regulations to comply with"
+            }
+          }
+        }
+      }
+    },
+    "quality_gates": {
+      "type": "object",
+      "properties": {
+        "code_quality": {
+          "type": "object",
+          "properties": {
+            "min_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "default": 8.0,
+              "description": "Minimum code quality score"
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["eslint", "sonarqube", "swiftlint", "ktlint", "custom"]
+              },
+              "default": ["eslint"]
+            }
+          }
+        },
+        "test_coverage": {
+          "type": "object",
+          "properties": {
+            "unit_tests": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 90,
+              "description": "Unit test coverage percentage"
+            },
+            "integration_tests": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 80,
+              "description": "Integration test coverage percentage"
+            },
+            "ai_tests": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 85,
+              "description": "AI component test coverage percentage"
+            },
+            "revenue_tests": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 95,
+              "description": "Revenue feature test coverage percentage"
+            }
+          }
+        },
+        "performance": {
+          "type": "object",
+          "properties": {
+            "response_time_ms": {
+              "type": "number",
+              "minimum": 0,
+              "default": 2000,
+              "description": "Maximum response time (ms)"
+            },
+            "memory_usage_mb": {
+              "type": "number",
+              "minimum": 0,
+              "default": 512,
+              "description": "Maximum memory usage (MB)"
+            },
+            "cpu_usage_percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 80,
+              "description": "Maximum CPU usage percentage"
+            }
+          }
+        },
+        "security": {
+          "type": "object",
+          "properties": {
+            "vulnerability_threshold": {
+              "type": "string",
+              "enum": ["none", "low", "medium", "high", "critical"],
+              "default": "medium",
+              "description": "Maximum allowed vulnerability severity"
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["snyk", "owasp", "bandit", "semgrep", "custom"]
+              },
+              "default": ["snyk"]
+            }
+          }
+        }
+      }
+    },
+    "automation": {
+      "type": "object",
+      "properties": {
+        "ci_cd": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": ["github_actions", "gitlab_ci", "jenkins", "azure_devops", "custom"],
+              "default": "github_actions"
+            },
+            "auto_deploy": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable automatic deployment"
+            },
+            "environments": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["development", "staging", "production"]
+              },
+              "default": ["development", "staging"]
+            }
+          }
+        },
+        "notifications": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["email", "slack", "discord", "teams", "webhook"]
+              },
+              "default": ["email"]
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["stage_transition", "quality_gate_failure", "deployment", "test_failure"]
+              },
+              "default": ["quality_gate_failure", "test_failure"]
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Configuration creation timestamp"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Configuration last update timestamp"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Configuration creator"
+        },
+        "version_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "changes": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["project", "tsddr"]
+}

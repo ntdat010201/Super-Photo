@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "lucide-icons": {
+      "command": "npx",
+      "args": ["lucide-icons-mcp", "--stdio"]
+    },
+    "hugeicons": {
+      "command": "npx",
+      "args": ["-y", "@hugeicons/mcp-server"]
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}
