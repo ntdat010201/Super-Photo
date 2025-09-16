@@ -1,7 +1,7 @@
 package com.example.superphoto.domain.application
 
 import android.app.Application
-import com.example.superphoto.di.module
+import com.example.superphoto.di.listModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -15,7 +15,7 @@ class PhotoApplication : Application() {
         startKoin {
             androidLogger(Level.ERROR)
             androidContext(this@PhotoApplication)
-            modules(module)
+            modules(listModule)
         }
     }
 
