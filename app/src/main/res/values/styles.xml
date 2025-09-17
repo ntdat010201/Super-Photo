@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Typography Styles based on AI Generator App -->
+    
+    <!-- Base Typography Style - Modern System Font -->
+    <style name="TextAppearance.SuperPhoto" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+    
+    <!-- Section Headers (Recently Viewed, Hot Effects, Trending) -->
+    <style name="TextAppearance.SuperPhoto.SectionHeader" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- Main Headline Style (Magic Spirit, etc.) -->
+    <style name="TextAppearance.SuperPhoto.Headline" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">-0.005</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- Card Title Style (Dance AI, AI Music Videos) -->
+    <style name="TextAppearance.SuperPhoto.CardTitle" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+    
+    <!-- Subtitle Text (Dance at sunset, Monkey Selfie) -->
+    <style name="TextAppearance.SuperPhoto.Subtitle" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <!-- Button Text (Try Now, Try) -->
+    <style name="TextAppearance.SuperPhoto.Button" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- Bottom Navigation Labels -->
+    <style name="TextAppearance.SuperPhoto.BottomNav" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <!-- Header Text (Search, Settings icons area) -->
+    <style name="TextAppearance.SuperPhoto.Header" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">17sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">-0.005</item>
+    </style>
+    
+    <!-- Missing styles for fragment layouts -->
+    <style name="TextAppearance.SuperPhoto.SectionTitle" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">-0.005</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <style name="TextAppearance.SuperPhoto.Title" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">-0.005</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <style name="TextAppearance.SuperPhoto.Body" parent="TextAppearance.SuperPhoto">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+</resources>

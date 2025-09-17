@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.superphoto.domain.ui.fragments.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_templates"
+        android:name="com.example.superphoto.domain.ui.fragments.TemplatesFragment"
+        android:label="Templates"
+        tools:layout="@layout/fragment_templates" />
+
+    <fragment
+        android:id="@+id/nav_create"
+        android:name="com.example.superphoto.domain.ui.fragments.CreateFragment"
+        android:label="Create"
+        tools:layout="@layout/fragment_create" />
+
+    <fragment
+        android:id="@+id/nav_tools"
+        android:name="com.example.superphoto.domain.ui.fragments.ToolsFragment"
+        android:label="Tools"
+        tools:layout="@layout/fragment_tools" />
+
+    <fragment
+        android:id="@+id/nav_assets"
+        android:name="com.example.superphoto.domain.ui.fragments.AssetsFragment"
+        android:label="Assets"
+        tools:layout="@layout/fragment_assets" />
+
+</navigation>
