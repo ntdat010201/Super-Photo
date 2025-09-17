@@ -36,16 +36,18 @@ class HomeFragment : Fragment(), AndroidScopeComponent {
     
     // Danh sách ảnh mẫu cho phần cứu ảnh xấu
     private val rescuePhotosList = listOf(
-        PhotoItem(R.drawable.ic_launcher_background, R.string.brighten_outdoor),
-        PhotoItem(R.drawable.ic_launcher_background, R.string.retouch),
-        PhotoItem(R.drawable.ic_launcher_background, R.string.remove)
+        PhotoItem(R.drawable.background_theme, R.string.enhance),
+        PhotoItem(R.drawable.background_theme, R.string.retouch),
+        PhotoItem(R.drawable.background_theme, R.string.remove),
+        PhotoItem(R.drawable.background_theme, R.string.enhance)
     )
     
     // Danh sách ảnh mẫu cho phần tỏa sáng với vẻ ngoài
     private val outdoorPhotosList = listOf(
-        PhotoItem(R.drawable.ic_launcher_background, R.string.brighten_outdoor),
-        PhotoItem(R.drawable.ic_launcher_background, R.string.retouch),
-        PhotoItem(R.drawable.ic_launcher_background, R.string.remove)
+        PhotoItem(R.drawable.background_theme, R.string.enhance),
+        PhotoItem(R.drawable.background_theme, R.string.retouch),
+        PhotoItem(R.drawable.background_theme, R.string.remove),
+        PhotoItem(R.drawable.background_theme, R.string.enhance)
     )
 
     override fun onCreateView(
@@ -66,15 +68,7 @@ class HomeFragment : Fragment(), AndroidScopeComponent {
         
         // Thiết lập RecyclerView cho phần tỏa sáng với vẻ ngoài
         setupOutdoorPhotosRecyclerView()
-        
-        // Thiết lập sự kiện click cho các nút
-        binding.btnCart.setOnClickListener {
-            // Xử lý khi nhấn vào giỏ hàng
-        }
-        
-        binding.btnSettings.setOnClickListener {
-            // Xử lý khi nhấn vào cài đặt
-        }
+
     }
     
     private fun setupFeaturesRecyclerView() {

@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#004D40"
+    android:background="#0A2A2A"
     tools:context=".domain.ui.fragment.HomeFragment">
 
-    <androidx.appcompat.widget.Toolbar
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -15,68 +15,158 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/tvAppName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Super Photo"
-            android:textColor="@android:color/white"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:text="AiFoto"
+            android:textColor="#FFFFFF"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/btn_cart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
+        <ImageView
+            android:id="@+id/ivCart"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginEnd="16dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/cart"
-            android:src="@drawable/ic_cart" />
+            android:background="@drawable/circle_background"
+            android:padding="6dp"
+            android:src="@drawable/ic_cart"
+            app:layout_constraintBottom_toBottomOf="@+id/tvAppName"
+            app:layout_constraintEnd_toStartOf="@+id/ivSettings"
+            app:layout_constraintTop_toTopOf="@+id/tvAppName"
+            app:tint="#FFFFFF" />
 
-        <ImageButton
-            android:id="@+id/btn_settings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginEnd="8dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/settings"
-            android:src="@drawable/ic_settings" />
-    </androidx.appcompat.widget.Toolbar>
+        <ImageView
+            android:id="@+id/ivSettings"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/circle_background"
+            android:padding="6dp"
+            android:src="@drawable/ic_settings"
+            app:layout_constraintBottom_toBottomOf="@+id/tvAppName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvAppName"
+            app:tint="#FFFFFF" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_marginHorizontal="8dp"
+        android:layout_marginHorizontal="24dp"
         android:id="@+id/constraint_1"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/img_add_avatar"
+        <!-- Main Feature Cards -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardEdit"
             android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:background="@drawable/bgr_scrim_boarding_topdown"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_edit"
+            android:layout_height="120dp"
+            android:layout_marginEnd="8dp"
+            app:cardBackgroundColor="#0F3B3B"
+            app:cardCornerRadius="16dp"
+            app:layout_constraintEnd_toStartOf="@+id/cardEnhance"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/img_vip"
-            app:layout_constraintWidth_percent="0.75"
-            android:layout_marginEnd="8dp"/>
+            app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/img_vip"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/ivEdit"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/circle_background_light"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_edit"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Sửa"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivEdit" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardEnhance"
             android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:background="@drawable/bgr_scrim_boarding_topdown"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_cart"
-            app:layout_constraintTop_toTopOf="@+id/img_add_avatar"
-            app:layout_constraintBottom_toBottomOf="@+id/img_add_avatar"
+            android:layout_height="120dp"
+            android:layout_marginStart="8dp"
+            app:cardBackgroundColor="#0F3B3B"
+            app:cardCornerRadius="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintWidth_percent="0.25" />
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/cardEdit"
+            app:layout_constraintTop_toTopOf="@+id/cardEdit">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/ivEnhance"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/circle_background_light"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_cart"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Tăng cường"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivEnhance" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/hd_badge_background"
+                    android:paddingStart="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="2dp"
+                    android:text="HD"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -85,7 +175,7 @@
         android:id="@+id/rv_features"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:clipToPadding="false"
         android:orientation="horizontal"
         android:paddingHorizontal="8dp"
@@ -110,7 +200,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/rescue_bad_photos"
                 android:textColor="@android:color/white"
@@ -131,7 +221,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/brighten_outdoor"
