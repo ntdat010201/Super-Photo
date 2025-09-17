@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.superphoto.R
+import com.superphoto.adapter.EffectsPhotoCardAdapter
 import com.superphoto.adapter.FeaturedCardAdapter
 import com.superphoto.adapter.HorizontalPhotoCardAdapter
 import com.superphoto.model.FeaturedCard
@@ -116,7 +117,7 @@ class HomeFragment : Fragment() {
 
         hotEffectsRecyclerView.layoutManager = 
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        hotEffectsRecyclerView.adapter = HorizontalPhotoCardAdapter(hotEffectsCards) { card ->
+        hotEffectsRecyclerView.adapter = EffectsPhotoCardAdapter(hotEffectsCards) { card ->
             // Handle card click
         }
 
