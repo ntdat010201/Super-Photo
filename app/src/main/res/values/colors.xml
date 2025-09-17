@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Original Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FF3320</color>
@@ -9,4 +10,56 @@
     <color name="yellow">#FCD631</color>
     <color name="blue">#0039A3</color>
     <color name="background_item">#EFF9FF</color>
+    
+    <!-- AiFoto App Colors - Exact from Screenshot -->
+    <!-- Primary Colors - Màu xanh lá cây sáng từ header -->
+    <color name="primary_green">#4CAF50</color>
+    <color name="primary_green_dark">#388E3C</color>
+    <color name="primary_green_light">#66BB6A</color>
+    
+    <!-- Background Colors - Màu nền đen -->
+    <color name="background_black">#000000</color>
+    <color name="surface_dark">#1E1E1E</color>
+    <color name="card_background">#2E5233</color>
+    
+    <!-- Text Colors -->
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_secondary">#B0BEC5</color>
+    <color name="text_gray">#757575</color>
+    
+    <!-- Card Colors - Màu của các card chính -->
+    <color name="card_edit_bg">#2A4A2E</color>
+    <color name="card_enhance_bg">#2A4A2E</color>
+    
+    <!-- Bottom Navigation Colors -->
+    <color name="bottom_nav_background">#1A1A1A</color>
+    <color name="bottom_nav_selected">#FFFFFF</color>
+    <color name="bottom_nav_unselected">#757575</color>
+    <color name="bottom_nav_indicator">#FFFFFF</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent_green">#4CAF50</color>
+    <color name="accent_light_green">#81C784</color>
+    
+    <!-- Banner Colors -->
+    <color name="banner_background">#1B5E20</color>
+    <color name="banner_text">#FFFFFF</color>
+    
+    <!-- Icon Colors -->
+    <color name="icon_white">#FFFFFF</color>
+    <color name="icon_gray">#757575</color>
+    <color name="icon_tint">#FFFFFF</color>
+    <color name="icon_inactive">#80FFFFFF</color>
+    
+    <!-- Divider colors -->
+    <color name="divider">#33FFFFFF</color>
+    
+    <!-- Divider Colors -->
+    <color name="divider_gray">#2E2E2E</color>
+    
+    <!-- Status Bar -->
+    <color name="status_bar">#0D4E1C</color>
+    
+    <!-- Transparent -->
+    <color name="transparent">#00000000</color>
 </resources>
