@@ -1,4 +1,4 @@
-package com.example.superphoto.domain.base
+package com.example.superphoto.base
 
 import android.os.Build
 import android.os.Bundle

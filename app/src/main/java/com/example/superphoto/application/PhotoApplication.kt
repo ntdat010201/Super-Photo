@@ -1,4 +1,4 @@
-package com.example.superphoto.domain.application
+package com.example.superphoto.application
 
 import android.app.Application
 import com.example.superphoto.di.listModule

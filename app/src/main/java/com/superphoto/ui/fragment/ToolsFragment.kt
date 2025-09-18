@@ -1,4 +1,4 @@
-package com.superphoto.fragment
+package com.superphoto.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
