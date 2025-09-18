@@ -1,4 +1,4 @@
-package com.superphoto.adapter
+package com.example.superphoto.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.superphoto.R
-import com.superphoto.model.FeaturedCard
+import com.example.superphoto.model.FeaturedCard
 
 class FeaturedCardAdapter(
     private val featuredCards: List<FeaturedCard>,

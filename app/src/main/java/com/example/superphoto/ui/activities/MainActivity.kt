@@ -1,4 +1,4 @@
-package com.superphoto.ui.activities
+package com.example.superphoto.ui.activities
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -6,11 +6,12 @@ import androidx.fragment.app.Fragment
 import com.example.superphoto.R
 import com.example.superphoto.base.BaseActivity
 import com.example.superphoto.databinding.ActivityMainBinding
-import com.superphoto.ui.fragment.AssetsFragment
-import com.superphoto.ui.fragment.CreateFragment
-import com.superphoto.ui.fragment.HomeFragment
-import com.superphoto.ui.fragment.TemplatesFragment
-import com.superphoto.ui.fragment.ToolsFragment
+import com.example.superphoto.ui.fragment.AssetsFragment
+import com.example.superphoto.ui.fragment.CreateFragment
+import com.example.superphoto.ui.fragment.HomeFragment
+import com.example.superphoto.ui.fragment.TemplatesFragment
+import com.example.superphoto.ui.fragment.ToolsFragment
+
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding

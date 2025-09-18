@@ -1,4 +1,4 @@
-package com.superphoto.model
+package com.example.superphoto.model
 
 data class FeaturedCard(
     val id: String,

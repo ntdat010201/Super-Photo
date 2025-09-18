@@ -1,4 +1,4 @@
-package com.superphoto.ui.fragment
+package com.example.superphoto.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,17 +7,17 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.superphoto.R
 
-class AssetsFragment : Fragment() {
+class ToolsFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_assets, container, false)
+        return inflater.inflate(R.layout.fragment_tools, container, false)
     }
 
     companion object {
-        fun newInstance() = AssetsFragment()
+        fun newInstance() = ToolsFragment()
     }
 }

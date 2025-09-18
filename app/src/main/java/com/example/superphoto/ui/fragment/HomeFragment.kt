@@ -1,4 +1,4 @@
-package com.superphoto.ui.fragment
+package com.example.superphoto.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,11 +12,12 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.superphoto.R
-import com.superphoto.adapter.EffectsPhotoCardAdapter
-import com.superphoto.adapter.FeaturedCardAdapter
-import com.superphoto.adapter.HorizontalPhotoCardAdapter
-import com.superphoto.model.FeaturedCard
-import com.superphoto.model.PhotoCard
+import com.example.superphoto.adapter.EffectsPhotoCardAdapter
+import com.example.superphoto.adapter.FeaturedCardAdapter
+import com.example.superphoto.adapter.HorizontalPhotoCardAdapter
+import com.example.superphoto.model.FeaturedCard
+import com.example.superphoto.model.PhotoCard
+
 
 class HomeFragment : Fragment() {
 

@@ -1,4 +1,4 @@
-package com.superphoto.model
+package com.example.superphoto.model
 
 data class PhotoCard(
     val id: String,
