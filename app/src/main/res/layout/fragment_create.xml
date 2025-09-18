@@ -3,34 +3,183 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/background"
-    tools:context=".CreateFragment">
+    android:orientation="vertical"
+    tools:context=".ui.fragment.CreateFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="✨"
-        android:textSize="64sp"
-        android:layout_marginBottom="16dp" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="12dp"
+        android:paddingTop="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="AI Generator"
+            android:textColor="@color/ai_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    </LinearLayout>
+
+    <!-- Tab Navigation -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create amazing photos with AI"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:gravity="center" />
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="20dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/tabImageToVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/ai_tab_ripple"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iconImageToVideo"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginBottom="4dp"
+                    android:src="@drawable/ic_image_to_video"
+                    app:tint="@color/ai_text_primary" />
+
+                <TextView
+                    android:id="@+id/textImageToVideo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Image\nto Video"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tabTextToVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/ai_tab_ripple"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iconTextToVideo"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginBottom="4dp"
+                    android:src="@drawable/ic_text_to_video"
+                    app:tint="@color/ai_tab_unselected" />
+
+                <TextView
+                    android:id="@+id/textTextToVideo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Text\nto Video"
+                    android:textColor="@color/ai_tab_unselected"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tabLipSync"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/ai_tab_ripple"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iconLipSync"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginBottom="4dp"
+                    android:src="@drawable/ic_lip_sync"
+                    app:tint="@color/ai_tab_unselected" />
+
+                <TextView
+                    android:id="@+id/textLipSync"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Lip Sync"
+                    android:textColor="@color/ai_tab_unselected"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tabAiImages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ai_tab_ripple"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iconAiImages"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginBottom="4dp"
+                    android:src="@drawable/ic_ai_images"
+                    app:tint="@color/ai_tab_unselected" />
+
+                <TextView
+                    android:id="@+id/textAiImages"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="AI\nImages"
+                    android:textColor="@color/ai_tab_unselected"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <!-- Fragment Container -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

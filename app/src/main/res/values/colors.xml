@@ -43,4 +43,29 @@
     
     <!-- Missing background color -->
     <color name="background">#0F1419</color>
+    
+    <!-- AI Generator specific colors -->
+    <color name="ai_background_primary">#1A1A2E</color>
+    <color name="ai_background_secondary">#2A1B3D</color>
+    <color name="ai_surface">#16213E</color>
+    <color name="ai_card_background">#1E293B</color>
+    <color name="ai_border">#334155</color>
+    <color name="ai_border_dashed">#475569</color>
+    <color name="ai_text_primary">#FFFFFF</color>
+    <color name="ai_text_secondary">#94A3B8</color>
+    <color name="ai_text_hint">#64748B</color>
+    <color name="ai_accent_purple">#8B5CF6</color>
+    <color name="ai_accent_orange">#F97316</color>
+    <color name="ai_tab_selected">#8B5CF6</color>
+    <color name="ai_tab_unselected">#64748B</color>
+    <color name="ai_upload_background">#0F172A</color>
+    <color name="ai_upload_border">#475569</color>
+    <color name="ai_button_gradient_start">#8B5CF6</color>
+    <color name="ai_button_gradient_end">#F97316</color>
+    <color name="ai_accent">#8B5CF6</color>
+    
+    <!-- Missing colors for ripple effects -->
+    <color name="ai_input_background">#1E293B</color>
+    <color name="ai_tab_background">#16213E</color>
+    <color name="ai_text_tertiary">#475569</color>
 </resources>

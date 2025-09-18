@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
+
+        <!-- Upload Area -->
+        <LinearLayout
+            android:id="@+id/uploadArea"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/ai_upload_ripple"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/uploadIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginBottom="8dp"
+                android:src="@drawable/ic_upload"
+                app:tint="@color/ai_text_secondary" />
+
+            <TextView
+                android:id="@+id/uploadText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:text="Upload only JPG and PNG images."
+                android:textColor="@color/ai_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/fileSizeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="File Size &lt;10Mb, Dimension &gt; 300px"
+                android:textColor="@color/ai_text_tertiary"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- Selected Images RecyclerView -->
+        <LinearLayout
+            android:id="@+id/selectedImagesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/selectedImagesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:paddingStart="0dp"
+                android:paddingEnd="8dp" />
+
+        </LinearLayout>
+
+        <!-- Hints Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Hints:"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/refreshButton"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_refresh"
+                    app:tint="@color/ai_accent"
+                    android:background="@drawable/ai_icon_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcv_img_to_video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <!-- Prompt Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Prompt (Optional)"
+                android:textColor="@color/ai_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/promptEditText"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="@drawable/ai_input_background"
+                android:gravity="top|start"
+                android:hint="Describe the scene and the action. For example: Turn this photo of a quiet city street at night into a cinematic scene. Add moving neon lights, passing cars with headlights, and a light rain into a cinematic atmosphere."
+                android:inputType="textMultiLine"
+                android:maxLines="6"
+                android:padding="16dp"
+                android:textColor="@color/ai_text_primary"
+                android:textColorHint="@color/ai_text_hint"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Duration Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Duration"
+                android:textColor="@color/ai_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/duration10s"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_duration_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="10 Seconds"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/duration15s"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_duration_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="15 Seconds"
+                    android:textColor="@color/ai_text_secondary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/duration20s"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_duration_ripple"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="20 Seconds"
+                    android:textColor="@color/ai_text_secondary"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Negative Prompt Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Negative Prompt (Optional)"
+                android:textColor="@color/ai_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/negativePromptEditText"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="@drawable/ai_input_background"
+                android:gravity="top|start"
+                android:hint="List the types of content you don't want to see in the video. For example: animation, blur, distortion, logos, abstract, illustrations,..."
+                android:inputType="textMultiLine"
+                android:maxLines="6"
+                android:padding="16dp"
+                android:textColor="@color/ai_text_primary"
+                android:textColorHint="@color/ai_text_hint"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Warning Text -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_info"
+                app:tint="@color/ai_text_tertiary" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="AI content should never be applied to illegal or harmful activities."
+                android:textColor="@color/ai_text_tertiary"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- Generate Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:orientation="vertical"
+            android:background="@drawable/ai_generate_button"
+            android:layout_marginHorizontal="20dp">
+
+            <Button
+                android:id="@+id/generateButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@android:color/transparent"
+                android:elevation="4dp"
+                android:stateListAnimator="@null"
+                android:text="✨ Generate"
+                android:textColor="@color/ai_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
