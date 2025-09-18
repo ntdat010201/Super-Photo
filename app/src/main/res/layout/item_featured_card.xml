@@ -18,6 +18,15 @@
             android:layout_height="match_parent"
             android:background="@drawable/card_gradient_purple" />
 
+        <!-- Photo Image -->
+        <ImageView
+            android:id="@+id/photoImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="visible"
+            android:src="@drawable/img1" />
+
         <!-- Trending Badge -->
         <TextView
             android:id="@+id/badgeText"

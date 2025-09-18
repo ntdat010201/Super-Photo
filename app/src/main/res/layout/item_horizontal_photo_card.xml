@@ -19,6 +19,14 @@
             android:layout_height="match_parent"
             android:background="@drawable/card_gradient_blue" />
 
+        <!-- Photo Image -->
+        <ImageView
+            android:id="@+id/photoImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img1" />
+
         <!-- Badge (optional) -->
         <TextView
             android:id="@+id/badgeText"

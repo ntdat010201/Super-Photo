@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.superphoto.R
@@ -64,23 +66,20 @@ class HomeFragment : Fragment() {
             FeaturedCard(
                 id = "1",
                 title = "AI Portrait",
-                description = "Transform your photos with AI",
                 badge = "🔥 Trending",
-                backgroundGradient = R.drawable.card_gradient_purple
+                imageResource = R.drawable.img1
             ),
             FeaturedCard(
                 id = "2",
                 title = "Vintage Filter",
-                description = "Classic retro effects",
                 badge = "✨ New",
-                backgroundGradient = R.drawable.card_gradient_orange
+                imageResource = R.drawable.img12
             ),
             FeaturedCard(
                 id = "3",
                 title = "Neon Glow",
-                description = "Futuristic neon effects",
                 badge = "🔥 Hot",
-                backgroundGradient = R.drawable.card_gradient_blue
+                imageResource = R.drawable.img13
             )
         )
 
@@ -93,11 +92,11 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerViews() {
         // Recently Viewed
         val recentlyViewedCards = listOf(
-            PhotoCard("1", "Sunset", "🔥 Hot", R.drawable.card_gradient_orange),
-            PhotoCard("2", "Ocean", "", R.drawable.card_gradient_blue),
-            PhotoCard("3", "Forest", "✨ New", R.drawable.card_gradient_green),
-            PhotoCard("4", "City", "", R.drawable.card_gradient_purple),
-            PhotoCard("5", "Mountain", "🔥 Popular", R.drawable.card_gradient_brown)
+            PhotoCard("1", "Photo 1", "🔥 Hot", imageResource = R.drawable.img1),
+            PhotoCard("2", "Photo 2", "", imageResource = R.drawable.img2),
+            PhotoCard("3", "Photo 3", "✨ New", imageResource = R.drawable.img3),
+            PhotoCard("4", "Photo 4", "",  imageResource = R.drawable.img4),
+            PhotoCard("5", "Photo 5", "🔥 Popular", imageResource = R.drawable.img5)
         )
 
         recentlyViewedRecyclerView.layoutManager = 
@@ -106,13 +105,14 @@ class HomeFragment : Fragment() {
             // Handle card click
         }
 
+
         // Hot Effects
         val hotEffectsCards = listOf(
-            PhotoCard("1", "Vintage", "🔥 Hot", R.drawable.card_gradient_yellow),
-            PhotoCard("2", "Black & White", "", R.drawable.card_gradient_gray),
-            PhotoCard("3", "Sepia", "✨ Classic", R.drawable.card_gradient_brown),
-            PhotoCard("4", "Neon", "🔥 Trending", R.drawable.card_gradient_purple),
-            PhotoCard("5", "Retro", "", R.drawable.card_gradient_orange)
+            PhotoCard("6", "Photo 6", "🔥 Hot", imageResource = R.drawable.img6),
+            PhotoCard("7", "Photo 7", "", imageResource = R.drawable.img7),
+            PhotoCard("8", "Photo 8", "✨ Classic", imageResource = R.drawable.img8),
+            PhotoCard("9", "Photo 9", "🔥 Trending",  imageResource = R.drawable.img9),
+            PhotoCard("10", "Photo 10", "", imageResource = R.drawable.img10)
         )
 
         hotEffectsRecyclerView.layoutManager = 
@@ -121,13 +121,14 @@ class HomeFragment : Fragment() {
             // Handle card click
         }
 
+
         // Trending
         val trendingCards = listOf(
-            PhotoCard("1", "Dance at sunset", "🔥 Hot", R.drawable.card_gradient_yellow),
-            PhotoCard("2", "Heart Hands", "🔥 Popular", R.drawable.card_gradient_brown),
-            PhotoCard("3", "City Lights", "✨ New", R.drawable.card_gradient_blue),
-            PhotoCard("4", "Nature", "", R.drawable.card_gradient_green),
-            PhotoCard("5", "Portrait", "🔥 Trending", R.drawable.card_gradient_purple)
+            PhotoCard("11", "Dance at sunset", "🔥 Hot", imageResource = R.drawable.img11),
+            PhotoCard("12", "Heart Hands", "🔥 Popular", imageResource = R.drawable.img12),
+            PhotoCard("13", "City Lights", "✨ New",imageResource = R.drawable.img13),
+            PhotoCard("14", "Nature", "",  imageResource = R.drawable.img1),
+            PhotoCard("15", "Portrait", "🔥 Trending", imageResource = R.drawable.img2)
         )
 
         trendingRecyclerView.layoutManager = 
@@ -135,6 +136,7 @@ class HomeFragment : Fragment() {
         trendingRecyclerView.adapter = HorizontalPhotoCardAdapter(trendingCards) { card ->
             // Handle card click
         }
+
     }
 
 

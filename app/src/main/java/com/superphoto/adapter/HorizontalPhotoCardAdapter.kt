@@ -3,6 +3,7 @@ package com.superphoto.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
@@ -27,7 +28,8 @@ class HorizontalPhotoCardAdapter(
     override fun getItemCount(): Int = photoCards.size
 
     inner class PhotoCardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val backgroundView: View = itemView.findViewById(R.id.backgroundView)
+
+        private val photoImageView: ImageView = itemView.findViewById(R.id.photoImageView)
         private val badgeText: TextView = itemView.findViewById(R.id.badgeText)
         private val titleText: TextView = itemView.findViewById(R.id.titleText)
         private val tryButton: CardView = itemView.findViewById(R.id.tryButton)
@@ -43,8 +45,16 @@ class HorizontalPhotoCardAdapter(
                 badgeText.visibility = View.GONE
             }
             
-            // Set background gradient
-            backgroundView.setBackgroundResource(photoCard.backgroundGradient)
+            // Set photo image
+            photoCard.imageResource?.let { resourceId ->
+                photoImageView.setImageResource(resourceId)
+                photoImageView.visibility = View.VISIBLE
+
+            } ?: run {
+                // Fallback to gradient background if no image
+                photoImageView.visibility = View.GONE
+
+            }
             
             // Set click listeners
             tryButton.setOnClickListener { onCardClick(photoCard) }
