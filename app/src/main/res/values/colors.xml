@@ -68,4 +68,9 @@
     <color name="ai_input_background">#1E293B</color>
     <color name="ai_tab_background">#16213E</color>
     <color name="ai_text_tertiary">#475569</color>
+    
+    <!-- Primary and Secondary colors -->
+    <color name="primary">#8B5CF6</color>
+    <color name="secondary">#10B981</color>
+    <color name="border_light">#E5E7EB</color>
 </resources>

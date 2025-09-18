@@ -3,328 +3,478 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/ai_background_primary"
+    android:background="@color/background"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingBottom="32dp">
+
+        <!-- Upload Area -->
+        <LinearLayout
+            android:id="@+id/uploadArea"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/ai_upload_background"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginBottom="12dp"
+                android:src="@drawable/ic_upload"
+                app:tint="@color/ai_text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="Upload only JPG and PNG images."
+                android:textColor="@color/ai_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="File Size &lt;10Mb, Dimension > 300px"
+                android:textColor="@color/ai_text_secondary"
+                android:textSize="12sp" />
+
+        </LinearLayout>
 
         <!-- Prompt Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Prompt"
-            android:textColor="@color/ai_text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="(Required)"
-            android:textColor="@color/ai_text_secondary"
-            android:textSize="12sp"
-            android:layout_marginBottom="12dp" />
-
-        <EditText
-            android:id="@+id/promptEditText"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:background="@drawable/ai_edittext_background"
-            android:gravity="top|start"
-            android:hint="Describe the image you want to generate. For example: A beautiful sunset over mountains with vibrant colors, photorealistic style, high quality, detailed landscape"
-            android:textColorHint="@color/ai_text_hint"
-            android:textColor="@color/ai_text_primary"
-            android:textSize="14sp"
-            android:padding="16dp"
-            android:inputType="textMultiLine"
-            android:maxLines="6"
-            android:layout_marginBottom="20dp" />
-
-        <!-- Style Selection -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Style"
-            android:textColor="@color/ai_text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="12dp">
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp">
 
             <TextView
-                android:id="@+id/styleRealistic"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Realistic"
+                android:layout_marginBottom="8dp"
+                android:text="Prompt"
                 android:textColor="@color/ai_text_primary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginEnd="8dp" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/styleArtistic"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Artistic"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:id="@+id/styleCartoon"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Cartoon"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="24dp">
-
-            <TextView
-                android:id="@+id/styleAnime"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Anime"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:id="@+id/styleAbstract"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Abstract"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:id="@+id/styleVintage"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Vintage"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center" />
-
-        </LinearLayout>
-
-        <!-- Image Size -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Image Size"
-            android:textColor="@color/ai_text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="24dp">
-
-            <TextView
-                android:id="@+id/sizeSquare"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Square\n1:1"
+            <EditText
+                android:id="@+id/promptEditText"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="@drawable/ai_edittext_background"
+                android:gravity="top|start"
+                android:hint="Describe the scene and the action. For example: Turn this photo of a quiet city street at night into a short video. Add moving neon lights, passing cars with headlights, and a light rain effect to create a cinematic atmosphere."
+                android:inputType="textMultiLine"
+                android:padding="16dp"
                 android:textColor="@color/ai_text_primary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginEnd="8dp" />
+                android:textColorHint="@color/ai_text_secondary"
+                android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/sizePortrait"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Portrait\n3:4"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:id="@+id/sizeLandscape"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Landscape\n4:3"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center" />
+            <ImageView
+                android:id="@+id/refreshPromptButton"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/ai_icon_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp"
+                android:src="@drawable/ic_refresh"
+                app:tint="@color/ai_accent" />
 
         </LinearLayout>
 
-        <!-- Number of Images -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Number of Images"
-            android:textColor="@color/ai_text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
-
+        <!-- Hints Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="24dp">
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp">
 
             <TextView
-                android:id="@+id/count1"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="1"
+                android:layout_marginBottom="12dp"
+                android:text="Hints:"
                 android:textColor="@color/ai_text_primary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginEnd="8dp" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/count2"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="2"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center"
-                android:layout_marginEnd="8dp" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/count4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="4"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="14sp"
-                android:background="@drawable/ai_duration_button_unselected"
-                android:padding="12dp"
-                android:gravity="center" />
+                <TextView
+                    android:id="@+id/hintDancingStreet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ai_hint_chip_background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:text="Dancing Street"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/hintVolcanoSea"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ai_hint_chip_background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:text="Volcano by the Sea"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/hintSurfingSea"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ai_hint_chip_background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:text="Surfing on the sea"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/refreshHintsButton"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/ai_icon_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp"
+                android:src="@drawable/ic_refresh"
+                app:tint="@color/ai_accent" />
 
         </LinearLayout>
 
-        <!-- Negative Prompt Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Negative Prompt"
-            android:textColor="@color/ai_text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="(Optional)"
-            android:textColor="@color/ai_text_secondary"
-            android:textSize="12sp"
-            android:layout_marginBottom="12dp" />
-
-        <EditText
-            android:id="@+id/negativePromptEditText"
+        <!-- Aspect Ratio Section -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="@drawable/ai_edittext_background"
-            android:gravity="top|start"
-            android:hint="Describe what you don't want in the image. For example: blurry, low quality, distorted, ugly, deformed, extra limbs"
-            android:textColorHint="@color/ai_text_hint"
-            android:textColor="@color/ai_text_primary"
-            android:textSize="14sp"
-            android:padding="16dp"
-            android:inputType="textMultiLine"
-            android:maxLines="4"
-            android:layout_marginBottom="32dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp">
 
-        <!-- Generate Button -->
-        <Button
-            android:id="@+id/generateButton"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Aspect Ratio"
+                android:textColor="@color/ai_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/aspectRatio1to1"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_aspect_ratio_selected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="1:1"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/aspectRatio16to9"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_aspect_ratio_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="16:9"
+                    android:textColor="@color/ai_text_secondary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/aspectRatio9to16"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_aspect_ratio_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="9:16"
+                    android:textColor="@color/ai_text_secondary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/aspectRatio3to4"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_aspect_ratio_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:text="3:4"
+                    android:textColor="@color/ai_text_secondary"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Choose Style Section -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="🎨 Generate Images"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:background="@drawable/ai_generate_button"
-            android:layout_marginBottom="16dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Choose Style"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See All"
+                    android:textColor="@color/ai_accent"
+                    android:textSize="14sp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/ai_text_ripple"
+                    android:padding="8dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- None Style -->
+                <LinearLayout
+                    android:id="@+id/styleNone"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_style_selected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/ai_style_icon_background"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_style_none"
+                        app:tint="@color/ai_text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="None"
+                        android:textColor="@color/ai_text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Photo Style -->
+                <LinearLayout
+                    android:id="@+id/stylePhoto"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_style_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/ai_style_photo_background"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/style_photo_sample" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Photo"
+                        android:textColor="@color/ai_text_secondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <!-- Anime Style -->
+                <LinearLayout
+                    android:id="@+id/styleAnime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_style_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/ai_style_anime_background"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/style_anime_sample" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Anime"
+                        android:textColor="@color/ai_text_secondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <!-- Illustration Style -->
+                <LinearLayout
+                    android:id="@+id/styleIllustration"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/ai_style_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/ai_style_illustration_background"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/style_illustration_sample" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Illustration"
+                        android:textColor="@color/ai_text_secondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <!-- Warning Text -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:src="@drawable/ic_info"
                 android:layout_marginEnd="8dp"
-                app:tint="@color/ai_text_hint" />
+                android:src="@drawable/ic_info"
+                app:tint="@color/ai_text_tertiary" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="AI content should never be applied to illegal or harmful activities."
-                android:textColor="@color/ai_text_hint"
+                android:textColor="@color/ai_text_tertiary"
                 android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- Generate Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:orientation="vertical"
+            android:background="@drawable/ai_generate_button"
+            android:layout_marginHorizontal="20dp">
+
+            <Button
+                android:id="@+id/generateButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@android:color/transparent"
+                android:text="✨ Generate"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
 
         </LinearLayout>
 

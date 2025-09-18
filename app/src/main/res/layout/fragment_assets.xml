@@ -7,7 +7,7 @@
     android:gravity="center"
     android:padding="24dp"
     android:background="@color/background"
-    tools:context=".AssetsFragment">
+    tools:context=".ui.fragment.AssetsFragment">
 
     <TextView
         android:layout_width="wrap_content"
