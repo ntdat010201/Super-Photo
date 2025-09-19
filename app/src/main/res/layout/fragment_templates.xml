@@ -4,33 +4,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
     android:background="@color/background"
     tools:context=".ui.fragment.TemplatesFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Categories RecyclerView (Horizontal) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/categoriesRecyclerView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="📄"
-        android:textSize="64sp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Templates"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:layout_marginBottom="8dp" />
+    <!-- Content ScrollView with Templates Grid -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Discover amazing photo templates"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:gravity="center" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/templatesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:clipToPadding="false" />
+
+    </ScrollView>
 
 </LinearLayout>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="12dp"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/template_category_unselected"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/categoryIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📷"
+        android:textSize="20sp"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/categoryName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="All"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+</LinearLayout>
