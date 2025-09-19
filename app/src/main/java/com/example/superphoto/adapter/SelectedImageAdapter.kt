@@ -50,7 +50,10 @@ class SelectedImageAdapter(
         }
         
         holder.removeButton.setOnClickListener {
-            onRemoveClick(position)
+            val currentPosition = holder.bindingAdapterPosition
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                onRemoveClick(currentPosition)
+            }
         }
     }
 

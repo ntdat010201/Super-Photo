@@ -17,21 +17,14 @@
         android:paddingHorizontal="16dp"
         android:clipToPadding="false" />
 
-    <!-- Content ScrollView with Templates Grid -->
-    <ScrollView
+    <!-- Templates Grid RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/templatesRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/templatesRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            android:clipToPadding="false" />
-
-    </ScrollView>
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:clipToPadding="false" />
 
 </LinearLayout>

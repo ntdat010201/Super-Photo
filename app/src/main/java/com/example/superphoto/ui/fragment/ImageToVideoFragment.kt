@@ -210,9 +210,18 @@ class ImageToVideoFragment : Fragment() {
     }
 
     private fun removeImageFromSelection(position: Int) {
-        selectedImages.removeAt(position)
-        selectedImageAdapter.notifyItemRemoved(position)
-        updateSelectedImagesVisibility()
+        // Kiểm tra bounds để tránh IndexOutOfBoundsException
+        if (position >= 0 && position < selectedImages.size) {
+            selectedImages.removeAt(position)
+            selectedImageAdapter.notifyItemRemoved(position)
+            // Cập nhật lại các position sau khi xóa
+            selectedImageAdapter.notifyItemRangeChanged(position, selectedImages.size)
+            updateSelectedImagesVisibility()
+        } else {
+            // Log lỗi để debug
+            android.util.Log.e("ImageToVideoFragment", 
+                "Invalid position: $position, list size: ${selectedImages.size}")
+        }
     }
 
     private fun updateSelectedImagesVisibility() {

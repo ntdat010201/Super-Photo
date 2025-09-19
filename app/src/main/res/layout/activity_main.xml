@@ -20,49 +20,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.cardview.widget.CardView
+        <EditText
+            android:id="@+id/searchEditText"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginEnd="12dp"
-            app:cardBackgroundColor="@color/search_background"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <TextView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:text="🔍"
-                    android:textSize="16sp"
-                    android:gravity="center" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:text="Search AI Generator..."
-                    android:textColor="@color/text_hint"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
+            android:background="@drawable/search_edittext_background"
+            android:hint="Search AI Generator..."
+            android:textColorHint="@color/text_hint"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:paddingStart="48dp"
+            android:paddingEnd="16dp"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="12dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:clickable="true"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:maxLines="1" />
 
         <TextView
             android:id="@+id/settingsIcon"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:text="⚙️"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:gravity="center"
             android:padding="12dp"
             android:background="?attr/selectableItemBackgroundBorderless" />
