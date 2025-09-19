@@ -6,14 +6,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.superphoto.R
 import com.example.superphoto.model.FeaturedCard
 
 class FeaturedCardAdapter(
-    private val featuredCards: List<FeaturedCard>,
     private val onCardClick: (FeaturedCard) -> Unit = {}
-) : RecyclerView.Adapter<FeaturedCardAdapter.FeaturedCardViewHolder>() {
+) : ListAdapter<FeaturedCard, FeaturedCardAdapter.FeaturedCardViewHolder>(FeaturedCardDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeaturedCardViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -22,10 +23,8 @@ class FeaturedCardAdapter(
     }
 
     override fun onBindViewHolder(holder: FeaturedCardViewHolder, position: Int) {
-        holder.bind(featuredCards[position])
+        holder.bind(getItem(position))
     }
-
-    override fun getItemCount(): Int = featuredCards.size
 
     inner class FeaturedCardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val photoImageView: ImageView = itemView.findViewById(R.id.photoImageView)
@@ -37,20 +36,27 @@ class FeaturedCardAdapter(
             titleText.text = featuredCard.title
             badgeText.text = featuredCard.badge
 
-            
             // Set photo image if available
             featuredCard.imageResource?.let { imageRes ->
                 photoImageView.setImageResource(imageRes)
                 photoImageView.visibility = View.VISIBLE
-
             } ?: run {
                 photoImageView.visibility = View.GONE
-
             }
-            
+
             // Set click listeners
             tryButton.setOnClickListener { onCardClick(featuredCard) }
             itemView.setOnClickListener { onCardClick(featuredCard) }
+        }
+    }
+
+    object FeaturedCardDiffCallback : DiffUtil.ItemCallback<FeaturedCard>() {
+        override fun areItemsTheSame(oldItem: FeaturedCard, newItem: FeaturedCard): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: FeaturedCard, newItem: FeaturedCard): Boolean {
+            return oldItem == newItem
         }
     }
 }

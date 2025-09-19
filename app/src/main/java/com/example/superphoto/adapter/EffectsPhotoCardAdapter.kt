@@ -6,14 +6,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.superphoto.R
 import com.example.superphoto.model.PhotoCard
 
 class EffectsPhotoCardAdapter(
-    private val photoCards: List<PhotoCard>,
     private val onCardClick: (PhotoCard) -> Unit = {}
-) : RecyclerView.Adapter<EffectsPhotoCardAdapter.PhotoCardViewHolder>() {
+) : ListAdapter<PhotoCard, EffectsPhotoCardAdapter.PhotoCardViewHolder>(PhotoCardDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoCardViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -22,10 +23,8 @@ class EffectsPhotoCardAdapter(
     }
 
     override fun onBindViewHolder(holder: PhotoCardViewHolder, position: Int) {
-        holder.bind(photoCards[position])
+        holder.bind(getItem(position))
     }
-
-    override fun getItemCount(): Int = photoCards.size
 
     inner class PhotoCardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val backgroundView: View = itemView.findViewById(R.id.backgroundView)
@@ -36,7 +35,7 @@ class EffectsPhotoCardAdapter(
 
         fun bind(photoCard: PhotoCard) {
             titleText.text = photoCard.title
-            
+
             // Show/hide badge
             if (photoCard.badge.isNotEmpty()) {
                 badgeText.text = photoCard.badge
@@ -44,19 +43,30 @@ class EffectsPhotoCardAdapter(
             } else {
                 badgeText.visibility = View.GONE
             }
-            
+
             // Display image if available, otherwise show gradient background
             photoCard.imageResource?.let { imageRes ->
                 photoImageView.setImageResource(imageRes)
                 photoImageView.visibility = View.VISIBLE
-
             } ?: run {
                 photoImageView.visibility = View.GONE
             }
-            
+
             // Set click listeners
             tryButton.setOnClickListener { onCardClick(photoCard) }
             itemView.setOnClickListener { onCardClick(photoCard) }
+        }
+    }
+
+    object PhotoCardDiffCallback : DiffUtil.ItemCallback<PhotoCard>() {
+        override fun areItemsTheSame(oldItem: PhotoCard, newItem: PhotoCard): Boolean {
+            // So sánh ID để xác định xem đây có phải là cùng một mục hay không
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: PhotoCard, newItem: PhotoCard): Boolean {
+            // So sánh nội dung để kiểm tra xem có thay đổi gì không
+            return oldItem == newItem
         }
     }
 }

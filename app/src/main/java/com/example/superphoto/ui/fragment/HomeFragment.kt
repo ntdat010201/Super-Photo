@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -17,7 +16,6 @@ import com.example.superphoto.adapter.FeaturedCardAdapter
 import com.example.superphoto.adapter.HorizontalPhotoCardAdapter
 import com.example.superphoto.model.FeaturedCard
 import com.example.superphoto.model.PhotoCard
-
 
 class HomeFragment : Fragment() {
 
@@ -36,7 +34,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         initViews(view)
         setupFeaturedCards()
         setupRecyclerViews()
@@ -47,16 +45,16 @@ class HomeFragment : Fragment() {
         recentlyViewedRecyclerView = view.findViewById(R.id.recentlyViewedRecyclerView)
         hotEffectsRecyclerView = view.findViewById(R.id.hotEffectsRecyclerView)
         trendingRecyclerView = view.findViewById(R.id.trendingRecyclerView)
-        
+
         // Setup See All click listeners
         view.findViewById<View>(R.id.seeAllRecentlyViewed)?.setOnClickListener {
             // TODO: Navigate to Recently Viewed full screen
         }
-        
+
         view.findViewById<View>(R.id.seeAllHotEffects)?.setOnClickListener {
             // TODO: Navigate to Hot Effects full screen
         }
-        
+
         view.findViewById<View>(R.id.seeAllTrending)?.setOnClickListener {
             // TODO: Navigate to Trending full screen
         }
@@ -84,10 +82,11 @@ class HomeFragment : Fragment() {
             )
         )
 
-        val adapter = FeaturedCardAdapter(featuredCards) { card ->
+        val adapter = FeaturedCardAdapter { card ->
             // Handle card click
         }
         featuredViewPager.adapter = adapter
+        adapter.submitList(featuredCards)
     }
 
     private fun setupRecyclerViews() {
@@ -96,51 +95,52 @@ class HomeFragment : Fragment() {
             PhotoCard("1", "Photo 1", "🔥 Hot", imageResource = R.drawable.img1),
             PhotoCard("2", "Photo 2", "", imageResource = R.drawable.img2),
             PhotoCard("3", "Photo 3", "✨ New", imageResource = R.drawable.img3),
-            PhotoCard("4", "Photo 4", "",  imageResource = R.drawable.img4),
+            PhotoCard("4", "Photo 4", "", imageResource = R.drawable.img4),
             PhotoCard("5", "Photo 5", "🔥 Popular", imageResource = R.drawable.img5)
         )
 
-        recentlyViewedRecyclerView.layoutManager = 
+        recentlyViewedRecyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recentlyViewedRecyclerView.adapter = HorizontalPhotoCardAdapter(recentlyViewedCards) { card ->
+        val recentlyViewedAdapter = HorizontalPhotoCardAdapter { card ->
             // Handle card click
         }
-
+        recentlyViewedRecyclerView.adapter = recentlyViewedAdapter
+        recentlyViewedAdapter.submitList(recentlyViewedCards)
 
         // Hot Effects
         val hotEffectsCards = listOf(
             PhotoCard("6", "Photo 6", "🔥 Hot", imageResource = R.drawable.img6),
             PhotoCard("7", "Photo 7", "", imageResource = R.drawable.img7),
             PhotoCard("8", "Photo 8", "✨ Classic", imageResource = R.drawable.img8),
-            PhotoCard("9", "Photo 9", "🔥 Trending",  imageResource = R.drawable.img9),
+            PhotoCard("9", "Photo 9", "🔥 Trending", imageResource = R.drawable.img9),
             PhotoCard("10", "Photo 10", "", imageResource = R.drawable.img10)
         )
 
-        hotEffectsRecyclerView.layoutManager = 
+        hotEffectsRecyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        hotEffectsRecyclerView.adapter = EffectsPhotoCardAdapter(hotEffectsCards) { card ->
+        val hotEffectsAdapter = EffectsPhotoCardAdapter { card ->
             // Handle card click
         }
-
+        hotEffectsRecyclerView.adapter = hotEffectsAdapter
+        hotEffectsAdapter.submitList(hotEffectsCards)
 
         // Trending
         val trendingCards = listOf(
             PhotoCard("11", "Dance at sunset", "🔥 Hot", imageResource = R.drawable.img11),
             PhotoCard("12", "Heart Hands", "🔥 Popular", imageResource = R.drawable.img12),
-            PhotoCard("13", "City Lights", "✨ New",imageResource = R.drawable.img13),
-            PhotoCard("14", "Nature", "",  imageResource = R.drawable.img1),
+            PhotoCard("13", "City Lights", "✨ New", imageResource = R.drawable.img13),
+            PhotoCard("14", "Nature", "", imageResource = R.drawable.img1),
             PhotoCard("15", "Portrait", "🔥 Trending", imageResource = R.drawable.img2)
         )
 
-        trendingRecyclerView.layoutManager = 
+        trendingRecyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        trendingRecyclerView.adapter = HorizontalPhotoCardAdapter(trendingCards) { card ->
+        val trendingAdapter = HorizontalPhotoCardAdapter { card ->
             // Handle card click
         }
-
+        trendingRecyclerView.adapter = trendingAdapter
+        trendingAdapter.submitList(trendingCards)
     }
-
-
 
     companion object {
         fun newInstance() = HomeFragment()
