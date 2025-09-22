@@ -25,28 +25,48 @@
             android:clickable="true"
             android:focusable="true">
 
+            <!-- Selected Image Display -->
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginBottom="12dp"
-                android:src="@drawable/ic_upload"
-                app:tint="@color/ai_text_secondary" />
+                android:id="@+id/selectedImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/ai_image_background"
+                android:visibility="gone" />
 
-            <TextView
+            <!-- Upload Placeholder -->
+            <LinearLayout
+                android:id="@+id/uploadPlaceholder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:text="Upload only JPG and PNG images."
-                android:textColor="@color/ai_text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:gravity="center">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="File Size &lt;10Mb, Dimension > 300px"
-                android:textColor="@color/ai_text_secondary"
-                android:textSize="12sp" />
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="12dp"
+                    android:src="@drawable/ic_upload"
+                    app:tint="@color/ai_text_secondary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="Upload only JPG and PNG images."
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="File Size &lt;10Mb, Dimension > 300px"
+                    android:textColor="@color/ai_text_secondary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -459,7 +479,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="24dp"
             android:orientation="vertical"
             android:background="@drawable/ai_generate_button"
             android:layout_marginHorizontal="20dp">
@@ -475,6 +495,92 @@
                 android:textStyle="bold"
                 android:clickable="true"
                 android:focusable="true" />
+
+        </LinearLayout>
+
+        <!-- AI Result Section -->
+        <LinearLayout
+            android:id="@+id/resultSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="32dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="AI Generated Result"
+                android:textColor="@color/ai_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- Result Image Container -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/ai_upload_background"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/resultImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="8dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/ai_image_background" />
+
+                <!-- Loading indicator -->
+                <ProgressBar
+                    android:id="@+id/loadingProgress"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_centerInParent="true"
+                    android:indeterminateTint="@color/ai_accent"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/downloadButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ai_secondary_button"
+                    android:text="📥 Download"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <Button
+                    android:id="@+id/shareButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/ai_secondary_button"
+                    android:text="📤 Share"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

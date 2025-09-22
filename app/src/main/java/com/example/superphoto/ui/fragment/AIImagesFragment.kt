@@ -15,6 +15,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +27,8 @@ class AIImagesFragment : Fragment() {
 
     // UI Elements
     private lateinit var uploadArea: LinearLayout
+    private lateinit var selectedImageView: ImageView
+    private lateinit var uploadPlaceholder: LinearLayout
     private lateinit var promptEditText: EditText
     private lateinit var refreshPromptButton: ImageView
     private lateinit var refreshHintsButton: ImageView
@@ -49,10 +52,18 @@ class AIImagesFragment : Fragment() {
 
     private lateinit var generateButton: Button
 
+    // Result section
+    private lateinit var resultSection: LinearLayout
+    private lateinit var resultImageView: ImageView
+    private lateinit var loadingProgress: ProgressBar
+    private lateinit var downloadButton: Button
+    private lateinit var shareButton: Button
+
     // State variables
     private var selectedAspectRatio = "1:1" // Default aspect ratio
     private var selectedStyle = "None" // Default style
     private var selectedImageUri: Uri? = null
+    private var generatedImageUri: Uri? = null
 
     // Image picker launcher
     private val imagePickerLauncher = registerForActivityResult(
@@ -85,6 +96,8 @@ class AIImagesFragment : Fragment() {
     private fun initViews(view: View) {
         // Upload area
         uploadArea = view.findViewById(R.id.uploadArea)
+        selectedImageView = view.findViewById(R.id.selectedImageView)
+        uploadPlaceholder = view.findViewById(R.id.uploadPlaceholder)
 
         // Prompt section
         promptEditText = view.findViewById(R.id.promptEditText)
@@ -110,12 +123,25 @@ class AIImagesFragment : Fragment() {
 
         // Generate button
         generateButton = view.findViewById(R.id.generateButton)
+
+        // Result section
+        resultSection = view.findViewById(R.id.resultSection)
+        resultImageView = view.findViewById(R.id.resultImageView)
+        loadingProgress = view.findViewById(R.id.loadingProgress)
+        downloadButton = view.findViewById(R.id.downloadButton)
+        shareButton = view.findViewById(R.id.shareButton)
     }
 
     private fun setupClickListeners() {
-        // Upload area click
+        // Upload area click listener
         uploadArea.setOnClickListener {
             animateClick(uploadArea)
+            openImagePicker()
+        }
+
+        // Selected image click listener for re-selection
+        selectedImageView.setOnClickListener {
+            animateClick(selectedImageView)
             openImagePicker()
         }
 
@@ -193,6 +219,17 @@ class AIImagesFragment : Fragment() {
             animateClick(generateButton)
             generateAIImage()
         }
+
+        // Result action buttons
+        downloadButton.setOnClickListener {
+            animateClick(downloadButton)
+            downloadGeneratedImage()
+        }
+
+        shareButton.setOnClickListener {
+            animateClick(shareButton)
+            shareGeneratedImage()
+        }
     }
 
     private fun openImagePicker() {
@@ -202,7 +239,13 @@ class AIImagesFragment : Fragment() {
     }
 
     private fun updateUploadArea(uri: Uri) {
-        // TODO: Update upload area to show selected image
+        // Hide placeholder and show selected image
+        uploadPlaceholder.visibility = View.GONE
+        selectedImageView.visibility = View.VISIBLE
+        
+        // Load image into ImageView
+        selectedImageView.setImageURI(uri)
+        
         Toast.makeText(context, "Image selected successfully", Toast.LENGTH_SHORT).show()
     }
 
@@ -307,12 +350,56 @@ class AIImagesFragment : Fragment() {
             return
         }
 
-        // TODO: Implement AI image generation logic
+        // Show loading state
+        showLoadingState()
+
+        // Simulate AI image generation (replace with actual API call)
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            // For demo purposes, use the selected image as result
+            // In real implementation, this would be the generated AI image
+            generatedImageUri = selectedImageUri
+            showGeneratedImage()
+        }, 3000) // 3 second delay to simulate processing
+    }
+
+    private fun showLoadingState() {
+        // Show result section
+        resultSection.visibility = View.VISIBLE
+        
+        // Show loading, hide result image and buttons
+        loadingProgress.visibility = View.VISIBLE
+        resultImageView.visibility = View.GONE
+        downloadButton.visibility = View.GONE
+        shareButton.visibility = View.GONE
+        
+        // Disable generate button during processing
+        generateButton.isEnabled = false
+        generateButton.alpha = 0.6f
+        
         Toast.makeText(
             context,
             "Generating AI image with style: $selectedStyle, aspect ratio: $selectedAspectRatio",
-            Toast.LENGTH_LONG
+            Toast.LENGTH_SHORT
         ).show()
+    }
+
+    private fun showGeneratedImage() {
+        // Hide loading
+        loadingProgress.visibility = View.GONE
+        
+        // Show result image and buttons
+        resultImageView.visibility = View.VISIBLE
+        downloadButton.visibility = View.VISIBLE
+        shareButton.visibility = View.VISIBLE
+        
+        // Load generated image
+        resultImageView.setImageURI(generatedImageUri)
+        
+        // Re-enable generate button
+        generateButton.isEnabled = true
+        generateButton.alpha = 1f
+        
+        Toast.makeText(context, "AI image generated successfully!", Toast.LENGTH_SHORT).show()
     }
 
     private fun animateClick(view: View) {
@@ -324,6 +411,47 @@ class AIImagesFragment : Fragment() {
         animatorSet.duration = 150
         animatorSet.interpolator = AccelerateDecelerateInterpolator()
         animatorSet.start()
+    }
+
+    private fun downloadGeneratedImage() {
+        if (generatedImageUri == null) {
+            Toast.makeText(context, "No image to download", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            // Create download intent
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(generatedImageUri, "image/*")
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            
+            // For demo purposes, just show a toast
+            // In real implementation, you would save the image to gallery
+            Toast.makeText(context, "Image download started", Toast.LENGTH_SHORT).show()
+            
+        } catch (e: Exception) {
+            Toast.makeText(context, "Failed to download image", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun shareGeneratedImage() {
+        if (generatedImageUri == null) {
+            Toast.makeText(context, "No image to share", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            val shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.type = "image/*"
+            shareIntent.putExtra(Intent.EXTRA_STREAM, generatedImageUri)
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            
+            val chooser = Intent.createChooser(shareIntent, "Share AI Generated Image")
+            startActivity(chooser)
+            
+        } catch (e: Exception) {
+            Toast.makeText(context, "Failed to share image", Toast.LENGTH_SHORT).show()
+        }
     }
 
     companion object {
