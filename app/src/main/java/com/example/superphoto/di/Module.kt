@@ -10,4 +10,5 @@ val mainActivity = module {
 
 val listModule = listOf(
     mainActivity,
+    networkModule,
 )

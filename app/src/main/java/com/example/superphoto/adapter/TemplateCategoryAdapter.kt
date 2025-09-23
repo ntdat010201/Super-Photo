@@ -42,16 +42,19 @@ class TemplateCategoryAdapter(
             holder.categoryIcon.setTextColor(ContextCompat.getColor(context, R.color.white))
         } else {
             holder.itemView.setBackgroundResource(R.drawable.template_category_unselected)
-            holder.categoryName.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+            holder.categoryName.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
             holder.categoryIcon.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
         }
 
         holder.itemView.setOnClickListener {
-            val previousPosition = selectedPosition
-            selectedPosition = position
-            notifyItemChanged(previousPosition)
-            notifyItemChanged(selectedPosition)
-            onCategoryClick(category)
+            val currentPosition = holder.adapterPosition
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                val oldPosition = selectedPosition
+                selectedPosition = currentPosition
+                notifyItemChanged(oldPosition)
+                notifyItemChanged(selectedPosition)
+                onCategoryClick(category)
+            }
         }
     }
 

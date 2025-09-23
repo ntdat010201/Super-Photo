@@ -61,4 +61,13 @@ dependencies {
 
     // Glide
     implementation(libs.glide)
+
+    // Retrofit & OkHttp
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+
+    // Gson
+    implementation(libs.gson)
 }
