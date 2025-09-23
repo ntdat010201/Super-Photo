@@ -70,4 +70,21 @@ dependencies {
 
     // Gson
     implementation(libs.gson)
+    
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    
+    // ViewModel & LiveData
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    
+    // Fragment KTX
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    
+    // Image Picker
+    implementation("com.github.dhaval2404:imagepicker:2.1")
+    
+    // Permission handling
+    implementation("com.karumi:dexter:6.2.3")
 }

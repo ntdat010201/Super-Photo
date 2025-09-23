@@ -82,4 +82,10 @@
     <color name="surface_color">#1A1F2E</color>
     <color name="primary_color">#8B5CF6</color>
     <color name="error_color">#EF4444</color>
+    
+    <!-- AI Transformation specific colors -->
+    <color name="background_primary">#0F1419</color>
+    <color name="surface_primary">#1A1F2E</color>
+    <color name="surface_secondary">#1F2937</color>
+    <color name="accent_primary">#8B5CF6</color>
 </resources>

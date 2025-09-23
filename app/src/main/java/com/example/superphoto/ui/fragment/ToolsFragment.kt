@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import com.example.superphoto.R
+import com.example.superphoto.ui.fragment.AITransformationFragment
+import com.superphoto.constants.TransformationConstants
 
 class ToolsFragment : Fragment() {
 
@@ -50,19 +52,19 @@ class ToolsFragment : Fragment() {
         }
 
         backgroundRemoverCard.setOnClickListener {
-            showComingSoon("Background Remover")
+            openTransformationTool("background_remover")
         }
 
         faceSwapCard.setOnClickListener {
-            showComingSoon("Face Swap")
+            openTransformationTool("face_swap")
         }
 
         aiEnhanceCard.setOnClickListener {
-            showComingSoon("AI Enhance")
+            openTransformationTool("ai_enhance")
         }
 
         colorizeCard.setOnClickListener {
-            showComingSoon("AI Colorize")
+            openTransformationTool("enhance_colorize")
         }
 
         objectRemovalCard.setOnClickListener {
@@ -70,7 +72,7 @@ class ToolsFragment : Fragment() {
         }
 
         styleTransferCard.setOnClickListener {
-            showComingSoon("Style Transfer")
+            openTransformationTool("style_transfer")
         }
     }
 
@@ -81,6 +83,20 @@ class ToolsFragment : Fragment() {
             .replace(R.id.fragmentContainer, celebrityPhotoFragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun openTransformationTool(transformationId: String) {
+        val transformation = TransformationConstants.getTransformationById(transformationId)
+        if (transformation != null) {
+            // Navigate to AI Transformation Activity
+            val aiTransformationFragment = AITransformationFragment.newInstance(transformation)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, aiTransformationFragment)
+                .addToBackStack(null)
+                .commit()
+        } else {
+            showComingSoon("AI Tool")
+        }
     }
 
     private fun showComingSoon(toolName: String) {
