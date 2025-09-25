@@ -7,6 +7,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,9 +23,22 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.superphoto.R
+import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.data.model.AspectRatio
+import com.example.superphoto.data.model.StyleOption
+import com.example.superphoto.utils.GenerationStatusManager
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class AIImagesFragment : Fragment() {
+
+    // Dependency injection
+    private val aiGenerationRepository: AIGenerationRepository by inject()
+    
+    // Status manager
+    private lateinit var statusManager: GenerationStatusManager
 
     // UI Elements
     private lateinit var uploadArea: LinearLayout
@@ -64,6 +79,7 @@ class AIImagesFragment : Fragment() {
     private var selectedStyle = "None" // Default style
     private var selectedImageUri: Uri? = null
     private var generatedImageUri: Uri? = null
+    private var isGenerating = false
 
     // Image picker launcher
     private val imagePickerLauncher = registerForActivityResult(
@@ -91,6 +107,9 @@ class AIImagesFragment : Fragment() {
         setupClickListeners()
         updateAspectRatioSelection("1:1") // Set default selection
         updateStyleSelection("None") // Set default selection
+        
+        // Initialize status manager
+        statusManager = GenerationStatusManager(requireContext(), aiGenerationRepository, lifecycleScope)
     }
 
     private fun initViews(view: View) {
@@ -133,6 +152,15 @@ class AIImagesFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        // TextWatcher for prompt EditText
+        promptEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                updateGenerateButtonState()
+            }
+        })
+        
         // Upload area click listener
         uploadArea.setOnClickListener {
             animateClick(uploadArea)
@@ -246,6 +274,9 @@ class AIImagesFragment : Fragment() {
         // Load image into ImageView
         selectedImageView.setImageURI(uri)
         
+        // Update generate button state
+        updateGenerateButtonState()
+        
         Toast.makeText(context, "Image selected successfully", Toast.LENGTH_SHORT).show()
     }
 
@@ -258,6 +289,7 @@ class AIImagesFragment : Fragment() {
             "Transform into a vintage retro style with warm tones and classic elements"
         )
         promptEditText.setText(prompts.random())
+        updateGenerateButtonState()
     }
 
     private fun refreshHints() {
@@ -282,6 +314,7 @@ class AIImagesFragment : Fragment() {
             "$currentText, $hint"
         }
         promptEditText.setText(newText)
+        updateGenerateButtonState()
         Toast.makeText(context, "Hint applied: $hint", Toast.LENGTH_SHORT).show()
     }
 
@@ -350,16 +383,106 @@ class AIImagesFragment : Fragment() {
             return
         }
 
+        if (isGenerating) {
+            Toast.makeText(context, "Generation in progress, please wait...", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        isGenerating = true
+        updateGenerateButtonState()
+        
         // Show loading state
         showLoadingState()
 
-        // Simulate AI image generation (replace with actual API call)
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            // For demo purposes, use the selected image as result
-            // In real implementation, this would be the generated AI image
-            generatedImageUri = selectedImageUri
-            showGeneratedImage()
-        }, 3000) // 3 second delay to simulate processing
+        lifecycleScope.launch {
+            try {
+                // Convert selectedStyle to StyleOption enum
+                val styleOption = when (selectedStyle.lowercase()) {
+                    "photo" -> StyleOption.PHOTO
+                    "anime" -> StyleOption.ANIME
+                    "illustration" -> StyleOption.ILLUSTRATION
+                    else -> StyleOption.NONE
+                }
+
+                // Convert selectedAspectRatio to AspectRatio enum
+                val aspectRatioOption = when (selectedAspectRatio) {
+                    "16:9" -> AspectRatio.LANDSCAPE
+                    "9:16" -> AspectRatio.PORTRAIT
+                    "3:4" -> AspectRatio.PHOTO
+                    else -> AspectRatio.SQUARE
+                }
+
+                val result = aiGenerationRepository.generateAIImage(
+                    sourceImageUri = selectedImageUri,
+                    prompt = prompt,
+                    aspectRatio = aspectRatioOption.value,
+                    style = styleOption.value
+                )
+
+                result.fold(
+                    onSuccess = { response ->
+                        Toast.makeText(
+                            context,
+                            "AI image generation started! Task ID: ${response.taskId}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        
+                        // Start status polling
+                        statusManager.startStatusPolling(response.taskId, object : GenerationStatusManager.StatusCallback {
+                            override fun onProgress(progress: Int, message: String) {
+                                // Update progress on main thread
+                                activity?.runOnUiThread {
+                                    Toast.makeText(context, "Progress: $progress% - $message", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            
+                            override fun onCompleted(resultUri: Uri?) {
+                                activity?.runOnUiThread {
+                                    isGenerating = false
+                                    updateGenerateButtonState()
+                                    
+                                    if (resultUri != null) {
+                                        generatedImageUri = resultUri
+                                        showGeneratedImage()
+                                    } else {
+                                        hideLoadingState()
+                                        Toast.makeText(context, "Generation completed but no result available", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                            
+                            override fun onFailed(error: String) {
+                                activity?.runOnUiThread {
+                                    isGenerating = false
+                                    updateGenerateButtonState()
+                                    hideLoadingState()
+                                    Toast.makeText(context, "Generation failed: $error", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        })
+                    },
+                    onFailure = { exception ->
+                        isGenerating = false
+                        updateGenerateButtonState()
+                        Toast.makeText(
+                            context,
+                            "Error: ${exception.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        hideLoadingState()
+                    }
+                )
+            } catch (e: Exception) {
+                isGenerating = false
+                updateGenerateButtonState()
+                Toast.makeText(
+                    context,
+                    "Error: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+                hideLoadingState()
+            }
+        }
     }
 
     private fun showLoadingState() {
@@ -400,6 +523,35 @@ class AIImagesFragment : Fragment() {
         generateButton.alpha = 1f
         
         Toast.makeText(context, "AI image generated successfully!", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun hideLoadingState() {
+        // Hide loading and result section
+        loadingProgress.visibility = View.GONE
+        resultSection.visibility = View.GONE
+        
+        // Re-enable generate button
+        generateButton.isEnabled = true
+        generateButton.alpha = 1f
+    }
+
+    private fun updateGenerateButtonState() {
+        val hasImage = selectedImageUri != null
+        val hasPrompt = promptEditText.text.toString().trim().isNotEmpty()
+        val canGenerate = hasImage && hasPrompt && !isGenerating
+        
+        generateButton.isEnabled = canGenerate
+        
+        if (canGenerate) {
+            generateButton.alpha = 1.0f
+            generateButton.text = "Generate AI Image"
+        } else if (isGenerating) {
+            generateButton.alpha = 0.7f
+            generateButton.text = "Generating..."
+        } else {
+            generateButton.alpha = 0.5f
+            generateButton.text = "Generate AI Image"
+        }
     }
 
     private fun animateClick(view: View) {

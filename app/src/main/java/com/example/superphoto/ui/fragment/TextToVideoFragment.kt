@@ -2,6 +2,7 @@ package com.example.superphoto.ui.fragment
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +15,19 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.superphoto.R
+import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.data.model.VideoDuration
+import com.example.superphoto.utils.GenerationStatusManager
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class TextToVideoFragment : Fragment() {
+
+    // Dependency injection
+    private val aiGenerationRepository: AIGenerationRepository by inject()
+    private lateinit var statusManager: GenerationStatusManager
 
     // UI Elements
     private lateinit var promptEditText: EditText
@@ -32,6 +43,7 @@ class TextToVideoFragment : Fragment() {
     
     // State variables
     private var selectedDuration = 10 // 10, 15, or 20 seconds
+    private var isGenerating = false
     
     // Hint options
     private val hintOptions = listOf(
@@ -53,6 +65,7 @@ class TextToVideoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        statusManager = GenerationStatusManager(requireContext(), aiGenerationRepository, lifecycleScope)
         initViews(view)
         setupClickListeners()
         updateDurationSelection()
@@ -183,18 +196,95 @@ class TextToVideoFragment : Fragment() {
             return
         }
 
-        Toast.makeText(
-            requireContext(),
-            "Generating ${selectedDuration}s video from text...",
-            Toast.LENGTH_LONG
-        ).show()
+        if (isGenerating) {
+            Toast.makeText(requireContext(), "Video generation in progress...", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        // TODO: Implement actual video generation logic
-        // This would typically involve:
-        // 1. Sending the prompt and negative prompt to AI service
-        // 2. Processing the request with selected duration
-        // 3. Showing progress dialog
-        // 4. Handling the generated video result
+        // Convert duration to enum
+        val duration = when (selectedDuration) {
+            10 -> VideoDuration.SHORT
+            15 -> VideoDuration.MEDIUM
+            20 -> VideoDuration.LONG
+            else -> VideoDuration.SHORT
+        }
+
+        isGenerating = true
+        updateGenerateButtonState()
+
+        lifecycleScope.launch {
+            try {
+                Toast.makeText(requireContext(), "Starting video generation from text...", Toast.LENGTH_SHORT).show()
+                
+                val result = aiGenerationRepository.generateVideoFromText(
+                    prompt = prompt,
+                    negativePrompt = negativePrompt,
+                    duration = duration.seconds
+                )
+                
+                if (result.isSuccess) {
+                    val videoResponse = result.getOrNull()!!
+                    Toast.makeText(requireContext(), 
+                        "Video generation started! Task ID: ${videoResponse.taskId}", 
+                        Toast.LENGTH_LONG).show()
+                    
+                    // Start status polling using GenerationStatusManager
+                    statusManager.startStatusPolling(
+                        taskId = videoResponse.taskId,
+                        callback = object : GenerationStatusManager.StatusCallback {
+                            override fun onProgress(progress: Int, message: String) {
+                                Toast.makeText(requireContext(), 
+                                    "Generation progress: $progress% - $message", 
+                                    Toast.LENGTH_SHORT).show()
+                            }
+                            
+                            override fun onCompleted(resultUri: Uri?) {
+                                isGenerating = false
+                                updateGenerateButtonState()
+                                
+                                if (resultUri != null) {
+                                    Toast.makeText(requireContext(), 
+                                        "Video generated successfully! Saved to gallery.", 
+                                        Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(requireContext(), 
+                                        "Video generation completed but no result available.", 
+                                        Toast.LENGTH_LONG).show()
+                                }
+                            }
+                            
+                            override fun onFailed(error: String) {
+                                isGenerating = false
+                                updateGenerateButtonState()
+                                Toast.makeText(requireContext(), 
+                                    "Video generation failed: $error", 
+                                    Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    )
+                    
+                } else {
+                    val error = result.exceptionOrNull()?.message ?: "Unknown error"
+                    Toast.makeText(requireContext(), 
+                        "Failed to start video generation: $error", 
+                        Toast.LENGTH_LONG).show()
+                    isGenerating = false
+                    updateGenerateButtonState()
+                }
+                
+            } catch (e: Exception) {
+                isGenerating = false
+                updateGenerateButtonState()
+                Toast.makeText(requireContext(), 
+                    "Error: ${e.message}", 
+                    Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+    
+    private fun updateGenerateButtonState() {
+        generateButton.isEnabled = !isGenerating
+        generateButton.text = if (isGenerating) "Generating..." else "Generate Video"
     }
 
     private fun animateClick(view: View) {

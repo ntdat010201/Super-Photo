@@ -11,8 +11,20 @@ object APIConfig {
     const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
     const val GEMINI_MODEL = "gemini-2.0-flash-exp"
     
+    // AI Generation API Configuration
+    const val AI_GENERATION_API_KEY = "YOUR_AI_GENERATION_API_KEY_HERE" // TODO: Replace with actual API key
+    const val AI_GENERATION_BASE_URL = "https://api.superphoto.ai" // TODO: Replace with actual base URL
+    
     // API Endpoints
     const val GEMINI_GENERATE_CONTENT = "$GEMINI_BASE_URL/$GEMINI_MODEL:generateContent"
+    
+    // AI Generation Endpoints
+    const val IMAGE_TO_VIDEO_ENDPOINT = "$AI_GENERATION_BASE_URL/api/v1/image-to-video"
+    const val TEXT_TO_VIDEO_ENDPOINT = "$AI_GENERATION_BASE_URL/api/v1/text-to-video"
+    const val LIP_SYNC_ENDPOINT = "$AI_GENERATION_BASE_URL/api/v1/lip-sync"
+    const val AI_IMAGES_ENDPOINT = "$AI_GENERATION_BASE_URL/api/v1/ai-images"
+    const val STATUS_ENDPOINT = "$AI_GENERATION_BASE_URL/api/v1/status"
+    const val DOWNLOAD_ENDPOINT = "$AI_GENERATION_BASE_URL/api/v1/download"
     
     // Request Configuration
     const val MAX_IMAGE_SIZE = 1024 // Max width/height for image processing

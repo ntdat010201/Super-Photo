@@ -20,12 +20,22 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.superphoto.R
 import com.example.superphoto.adapter.SelectedImageAdapter
+import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.data.model.VideoDuration
+import com.example.superphoto.utils.GenerationStatusManager
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class ImageToVideoFragment : Fragment() {
+
+    // Dependency injection
+    private val aiGenerationRepository: AIGenerationRepository by inject()
+    private lateinit var statusManager: GenerationStatusManager
 
     // UI Elements
     private lateinit var uploadArea: LinearLayout
@@ -48,6 +58,7 @@ class ImageToVideoFragment : Fragment() {
     private var selectedDuration = 10 // 10, 15, or 20 seconds
     private var selectedImageUri: Uri? = null
     private val selectedImages = mutableListOf<Uri>()
+    private var isGenerating = false
 
     // Image picker launcher
     private val imagePickerLauncher = registerForActivityResult(
@@ -71,6 +82,7 @@ class ImageToVideoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        statusManager = GenerationStatusManager(requireContext(), aiGenerationRepository, lifecycleScope)
         initViews(view)
         setupClickListeners()
         setupRecyclerView()
@@ -157,18 +169,90 @@ class ImageToVideoFragment : Fragment() {
             return
         }
 
+        if (isGenerating) {
+            Toast.makeText(requireContext(), "Video generation in progress...", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val prompt = promptEditText.text.toString().trim()
         val negativePrompt = negativePromptEditText.text.toString().trim()
         
-        val message = buildString {
-            append("Generating ${selectedDuration}s video with ${selectedImages.size} image(s)")
-            if (prompt.isNotEmpty()) append("\nPrompt: $prompt")
-            if (negativePrompt.isNotEmpty()) append("\nNegative Prompt: $negativePrompt")
+        // Convert duration to enum
+        val duration = when (selectedDuration) {
+            10 -> VideoDuration.SHORT
+            15 -> VideoDuration.MEDIUM
+            20 -> VideoDuration.LONG
+            else -> VideoDuration.SHORT
         }
-        
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
 
-        // TODO: Implement actual video generation logic
+        isGenerating = true
+        updateGenerateButtonState()
+        
+        lifecycleScope.launch {
+            try {
+                Toast.makeText(requireContext(), "Starting video generation...", Toast.LENGTH_SHORT).show()
+                
+                val result = aiGenerationRepository.generateVideoFromImages(
+                    imageUris = selectedImages,
+                    prompt = prompt,
+                    negativePrompt = negativePrompt,
+                    duration = duration.seconds
+                )
+                
+                if (result.isSuccess) {
+                    val taskId = result.getOrNull()!!.taskId
+                    statusManager.startStatusPolling(taskId, object : GenerationStatusManager.StatusCallback {
+                            override fun onProgress(progress: Int, message: String) {
+                                Toast.makeText(requireContext(), 
+                                    "Generation progress: $progress% - $message", 
+                                    Toast.LENGTH_SHORT).show()
+                            }
+                            
+                            override fun onCompleted(resultUri: Uri?) {
+                                isGenerating = false
+                                updateGenerateButtonState()
+                                
+                                if (resultUri != null) {
+                                    Toast.makeText(requireContext(), 
+                                        "Video generated successfully!", 
+                                        Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(requireContext(), 
+                                        "Video generation completed but no result available", 
+                                        Toast.LENGTH_LONG).show()
+                                }
+                            }
+                            
+                            override fun onFailed(error: String) {
+                                isGenerating = false
+                                updateGenerateButtonState()
+                                Toast.makeText(requireContext(), 
+                                    "Video generation failed: $error", 
+                                    Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    )
+                    
+                } else {
+                    val error = result.exceptionOrNull()?.message ?: "Unknown error"
+                    Toast.makeText(requireContext(), 
+                        "Failed to start video generation: $error", 
+                        Toast.LENGTH_LONG).show()
+                }
+                
+            } catch (e: Exception) {
+                isGenerating = false
+                updateGenerateButtonState()
+                Toast.makeText(requireContext(), 
+                    "Error: ${e.message}", 
+                    Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+    
+    private fun updateGenerateButtonState() {
+        generateButton.isEnabled = !isGenerating && selectedImages.isNotEmpty()
+        generateButton.text = if (isGenerating) "Generating..." else "Generate Video"
     }
 
     // applyHint method removed as hint chips don't exist in image_to_video layout
@@ -238,6 +322,9 @@ class ImageToVideoFragment : Fragment() {
         } else {
             View.GONE
         }
+        
+        // Cập nhật trạng thái nút generate
+        updateGenerateButtonState()
     }
 
     private fun openImagePicker() {

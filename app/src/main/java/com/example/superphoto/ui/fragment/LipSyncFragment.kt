@@ -19,9 +19,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.superphoto.R
+import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.utils.GenerationStatusManager
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class LipSyncFragment : Fragment() {
+
+    // Dependency injection
+    private val aiGenerationRepository: AIGenerationRepository by inject()
+    private lateinit var statusManager: GenerationStatusManager
 
     // UI Elements
     private lateinit var videoUploadArea: LinearLayout
@@ -41,6 +50,7 @@ class LipSyncFragment : Fragment() {
     // State variables
     private var selectedVideoUri: Uri? = null
     private var selectedAudioUri: Uri? = null
+    private var isGenerating = false
     
     // File picker launchers
     private val videoPickerLauncher = registerForActivityResult(
@@ -75,6 +85,7 @@ class LipSyncFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        statusManager = GenerationStatusManager(requireContext(), aiGenerationRepository, lifecycleScope)
         initViews(view)
         setupClickListeners()
         updateGenerateButtonState()
@@ -188,13 +199,19 @@ class LipSyncFragment : Fragment() {
     private fun updateGenerateButtonState() {
         val hasVideo = selectedVideoUri != null
         val hasAudio = selectedAudioUri != null
+        val canGenerate = hasVideo && hasAudio && !isGenerating
         
-        generateButton.isEnabled = hasVideo && hasAudio
+        generateButton.isEnabled = canGenerate
         
-        if (hasVideo && hasAudio) {
+        if (canGenerate) {
             generateButton.alpha = 1.0f
+            generateButton.text = "Generate Lip Sync"
+        } else if (isGenerating) {
+            generateButton.alpha = 0.7f
+            generateButton.text = "Generating..."
         } else {
             generateButton.alpha = 0.5f
+            generateButton.text = "Generate Lip Sync"
         }
     }
 
@@ -204,21 +221,86 @@ class LipSyncFragment : Fragment() {
             return
         }
 
+        if (isGenerating) {
+            Toast.makeText(requireContext(), "Generation in progress, please wait...", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val enhanceQuality = enhanceQualityCheckbox.isChecked
         val preserveExpression = preserveExpressionCheckbox.isChecked
         
+        isGenerating = true
+        updateGenerateButtonState()
+        
         Toast.makeText(
             requireContext(),
-            "Generating lip sync video with selected options...",
-            Toast.LENGTH_LONG
+            "Starting lip sync generation...",
+            Toast.LENGTH_SHORT
         ).show()
 
-        // TODO: Implement actual lip sync generation logic
-        // This would typically involve:
-        // 1. Uploading video and audio files to server
-        // 2. Processing lip sync with selected options
-        // 3. Showing progress dialog
-        // 4. Handling the generated video result
+        lifecycleScope.launch {
+            try {
+                val result = aiGenerationRepository.generateLipSync(
+                    videoUri = selectedVideoUri!!,
+                    audioUri = selectedAudioUri!!,
+                    enhanceQuality = enhanceQuality,
+                    preserveExpression = preserveExpression
+                )
+
+                if (result.isSuccess) {
+                    val taskId = result.getOrNull()!!.taskId
+                    statusManager.startStatusPolling(taskId, object : GenerationStatusManager.StatusCallback {
+                            override fun onProgress(progress: Int, message: String) {
+                                Toast.makeText(requireContext(), 
+                                    "Lip sync progress: $progress% - $message", 
+                                    Toast.LENGTH_SHORT).show()
+                            }
+                            
+                            override fun onCompleted(resultUri: Uri?) {
+                                isGenerating = false
+                                updateGenerateButtonState()
+                                
+                                if (resultUri != null) {
+                                    Toast.makeText(requireContext(), 
+                                        "Lip sync video generated successfully! Saved to gallery.", 
+                                        Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(requireContext(), 
+                                        "Lip sync generation completed but no result available.", 
+                                        Toast.LENGTH_LONG).show()
+                                }
+                            }
+                            
+                            override fun onFailed(error: String) {
+                                isGenerating = false
+                                updateGenerateButtonState()
+                                Toast.makeText(requireContext(), 
+                                    "Lip sync generation failed: $error", 
+                                    Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    )
+                    
+                } else {
+                    val error = result.exceptionOrNull()?.message ?: "Unknown error"
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to start lip sync generation: $error",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    isGenerating = false
+                    updateGenerateButtonState()
+                }
+            } catch (e: Exception) {
+                isGenerating = false
+                updateGenerateButtonState()
+                Toast.makeText(
+                    requireContext(),
+                    "Error: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
     private fun getFileName(uri: Uri): String? {
