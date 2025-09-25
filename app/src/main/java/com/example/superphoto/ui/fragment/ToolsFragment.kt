@@ -1,6 +1,7 @@
 package com.example.superphoto.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,70 +38,155 @@ class ToolsFragment : Fragment() {
     }
 
     private fun initViews(view: View) {
-        celebrityPhotoCard = view.findViewById(R.id.celebrityPhotoCard)
-        backgroundRemoverCard = view.findViewById(R.id.backgroundRemoverCard)
-        faceSwapCard = view.findViewById(R.id.faceSwapCard)
-        aiEnhanceCard = view.findViewById(R.id.aiEnhanceCard)
-        colorizeCard = view.findViewById(R.id.colorizeCard)
-        objectRemovalCard = view.findViewById(R.id.objectRemovalCard)
-        styleTransferCard = view.findViewById(R.id.styleTransferCard)
+        try {
+            celebrityPhotoCard = view.findViewById(R.id.celebrityPhotoCard)
+                ?: throw IllegalStateException("celebrityPhotoCard not found")
+            backgroundRemoverCard = view.findViewById(R.id.backgroundRemoverCard)
+                ?: throw IllegalStateException("backgroundRemoverCard not found")
+            faceSwapCard = view.findViewById(R.id.faceSwapCard)
+                ?: throw IllegalStateException("faceSwapCard not found")
+            aiEnhanceCard = view.findViewById(R.id.aiEnhanceCard)
+                ?: throw IllegalStateException("aiEnhanceCard not found")
+            colorizeCard = view.findViewById(R.id.colorizeCard)
+                ?: throw IllegalStateException("colorizeCard not found")
+            objectRemovalCard = view.findViewById(R.id.objectRemovalCard)
+                ?: throw IllegalStateException("objectRemovalCard not found")
+            styleTransferCard = view.findViewById(R.id.styleTransferCard)
+                ?: throw IllegalStateException("styleTransferCard not found")
+        } catch (e: Exception) {
+            Log.e("ToolsFragment", "Error initializing views: ${e.message}", e)
+            showErrorToast("Failed to initialize tools interface")
+        }
     }
 
     private fun setupClickListeners() {
-        celebrityPhotoCard.setOnClickListener {
-            openCelebrityPhotoTool()
-        }
+        try {
+            if (::celebrityPhotoCard.isInitialized) {
+                celebrityPhotoCard.setOnClickListener {
+                    safeExecute { openCelebrityPhotoTool() }
+                }
+            }
 
-        backgroundRemoverCard.setOnClickListener {
-            openTransformationTool("background_remover")
-        }
+            if (::backgroundRemoverCard.isInitialized) {
+                backgroundRemoverCard.setOnClickListener {
+                    safeExecute { openTransformationTool("background_remover") }
+                }
+            }
 
-        faceSwapCard.setOnClickListener {
-            openTransformationTool("face_swap")
-        }
+            if (::faceSwapCard.isInitialized) {
+                faceSwapCard.setOnClickListener {
+                    safeExecute { openTransformationTool("face_swap") }
+                }
+            }
 
-        aiEnhanceCard.setOnClickListener {
-            openTransformationTool("ai_enhance")
-        }
+            if (::aiEnhanceCard.isInitialized) {
+                aiEnhanceCard.setOnClickListener {
+                    safeExecute { openTransformationTool("ai_enhance") }
+                }
+            }
 
-        colorizeCard.setOnClickListener {
-            openTransformationTool("enhance_colorize")
-        }
+            if (::colorizeCard.isInitialized) {
+                colorizeCard.setOnClickListener {
+                    safeExecute { openTransformationTool("enhance_colorize") }
+                }
+            }
 
-        objectRemovalCard.setOnClickListener {
-            showComingSoon("Object Removal")
-        }
+            if (::objectRemovalCard.isInitialized) {
+                objectRemovalCard.setOnClickListener {
+                    safeExecute { showComingSoon("Object Removal") }
+                }
+            }
 
-        styleTransferCard.setOnClickListener {
-            openTransformationTool("style_transfer")
+            if (::styleTransferCard.isInitialized) {
+                styleTransferCard.setOnClickListener {
+                    safeExecute { openTransformationTool("style_transfer") }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("ToolsFragment", "Error setting up click listeners: ${e.message}", e)
+            showErrorToast("Failed to setup tool interactions")
         }
     }
 
     private fun openCelebrityPhotoTool() {
-        // Navigate to Celebrity Photo Tool
-        val celebrityPhotoFragment = CelebrityPhotoFragment.newInstance()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, celebrityPhotoFragment)
-            .addToBackStack(null)
-            .commit()
+        try {
+            if (!isAdded || isDetached) {
+                showErrorToast("Cannot navigate - fragment not attached")
+                return
+            }
+
+            // Navigate to Celebrity Photo Tool
+            val celebrityPhotoFragment = CelebrityPhotoFragment.newInstance()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, celebrityPhotoFragment)
+                .addToBackStack(null)
+                .commit()
+        } catch (e: Exception) {
+            Log.e("ToolsFragment", "Error opening celebrity photo tool: ${e.message}", e)
+            showErrorToast("Failed to open Celebrity Photo tool")
+        }
     }
 
     private fun openTransformationTool(transformationId: String) {
-        val transformation = TransformationConstants.getTransformationById(transformationId)
-        if (transformation != null) {
-            // Navigate to AI Transformation Activity
-            val aiTransformationFragment = AITransformationFragment.newInstance(transformation)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, aiTransformationFragment)
-                .addToBackStack(null)
-                .commit()
-        } else {
-            showComingSoon("AI Tool")
+        try {
+            if (!isAdded || isDetached) {
+                showErrorToast("Cannot navigate - fragment not attached")
+                return
+            }
+
+            val transformation = TransformationConstants.getTransformationById(transformationId)
+            if (transformation != null) {
+                // Navigate to AI Transformation Activity
+                val aiTransformationFragment = AITransformationFragment.newInstance(transformation)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentContainer, aiTransformationFragment)
+                    .addToBackStack(null)
+                    .commit()
+            } else {
+                Log.w("ToolsFragment", "Transformation not found for ID: $transformationId")
+                showComingSoon("AI Tool")
+            }
+        } catch (e: Exception) {
+            Log.e("ToolsFragment", "Error opening transformation tool '$transformationId': ${e.message}", e)
+            showErrorToast("Failed to open AI transformation tool")
         }
     }
 
     private fun showComingSoon(toolName: String) {
-        Toast.makeText(context, "$toolName - Coming Soon! 🚀", Toast.LENGTH_SHORT).show()
+        try {
+            context?.let { ctx ->
+                Toast.makeText(ctx, "$toolName - Coming Soon! 🚀", Toast.LENGTH_SHORT).show()
+            } ?: run {
+                Log.w("ToolsFragment", "Cannot show coming soon toast - context is null")
+            }
+        } catch (e: Exception) {
+            Log.e("ToolsFragment", "Error showing coming soon toast: ${e.message}", e)
+        }
+    }
+
+    private fun showErrorToast(message: String) {
+        try {
+            context?.let { ctx ->
+                Toast.makeText(ctx, "Error: $message", Toast.LENGTH_LONG).show()
+            } ?: run {
+                Log.e("ToolsFragment", "Cannot show error toast - context is null: $message")
+            }
+        } catch (e: Exception) {
+            Log.e("ToolsFragment", "Error showing error toast: ${e.message}", e)
+        }
+    }
+
+    private fun safeExecute(action: () -> Unit) {
+        try {
+            if (!isAdded || isDetached) {
+                showErrorToast("Action cannot be performed - fragment not available")
+                return
+            }
+            action()
+        } catch (e: Exception) {
+            Log.e("ToolsFragment", "Error executing action: ${e.message}", e)
+            showErrorToast("An unexpected error occurred")
+        }
     }
 
     companion object {
