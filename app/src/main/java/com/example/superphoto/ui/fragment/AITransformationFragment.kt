@@ -33,6 +33,7 @@ import com.superphoto.ai.ObjectRemovalProcessor
 import com.superphoto.ai.StyleTransferProcessor
 import com.superphoto.ai.SmartSuggestionsProcessor
 import com.example.superphoto.ui.adapter.SmartSuggestionsAdapter
+import com.example.superphoto.ui.components.EnhancedLoadingManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import java.io.Serializable
 
@@ -76,6 +77,9 @@ class AITransformationFragment : Fragment() {
     private lateinit var styleTransferProcessor: StyleTransferProcessor
     private lateinit var smartSuggestionsProcessor: SmartSuggestionsProcessor
     private lateinit var smartSuggestionsAdapter: SmartSuggestionsAdapter
+    
+    // Enhanced Loading Manager
+    private lateinit var enhancedLoadingManager: EnhancedLoadingManager
 
     // Image picker launcher
     private val imagePickerLauncher = registerForActivityResult(
@@ -130,6 +134,12 @@ class AITransformationFragment : Fragment() {
         setupClickListeners()
         initGeminiProcessor()
         setupSmartSuggestions()
+        
+        // Initialize Enhanced Loading Manager
+        enhancedLoadingManager = EnhancedLoadingManager(
+            requireContext(),
+            view.findViewById(R.id.mainContainer) // Assuming main container exists
+        )
     }
 
     private fun initViews(view: View) {
@@ -256,149 +266,355 @@ class AITransformationFragment : Fragment() {
         val transform = transformation
         
         if (imageUri == null || transform == null) {
-            Toast.makeText(context, "Please select an image first", Toast.LENGTH_SHORT).show()
+            showErrorMessage("Please select an image first")
             return
         }
 
-        // Show processing UI
-        showProcessingState(true)
-        processingText.text = "Processing with AI..."
+        // Validate API configuration before processing
+        if (!validateAPIConfiguration()) {
+            showErrorMessage("API not configured. Please check your API keys in settings.")
+            return
+        }
+
+        // Show enhanced loading based on transformation type
+        val loadingConfig = getLoadingConfigForTransformation(transform)
+        enhancedLoadingManager.show(loadingConfig)
+        enhancedLoadingManager.setOnCancelListener {
+            // Handle cancellation
+            showProcessingState(false)
+            showErrorMessage("Processing cancelled")
+        }
 
         // Check transformation type and use appropriate processor
         when {
             transform.id.startsWith("bg_") || transform.id.contains("background") -> {
-                // Use specialized background removal processor
-                lifecycleScope.launch {
-                    try {
-                        val result = backgroundRemovalProcessor.removeBackground(imageUri)
-                        result.onSuccess { backgroundResult ->
-                            // Convert processed bitmap to URI
-                            val uri = saveBitmapToTempFile(backgroundResult.processedBitmap)
-                            processedImageUri = uri
-                            showProcessingState(false)
-                            uri?.let { showResult(it) } ?: run {
-                                Toast.makeText(context, "Failed to save processed image", Toast.LENGTH_SHORT).show()
-                            }
-                        }.onFailure { error ->
-                            showProcessingState(false)
-                            Toast.makeText(context, "Background removal failed: ${error.message}", Toast.LENGTH_LONG).show()
-                        }
-                    } catch (e: Exception) {
-                        showProcessingState(false)
-                        Toast.makeText(context, "Background removal failed: ${e.message}", Toast.LENGTH_LONG).show()
-                    }
-                }
+                processBackgroundTransformation(imageUri)
             }
             transform.id.contains("face_swap") || transform.id.contains("faceswap") -> {
-                // Use face swap processor
-                val targetUri = targetFaceUri
-                if (targetUri == null) {
+                processFaceSwapTransformation(imageUri)
+            }
+            transform.id.contains("enhance") || transform.id.contains("ai_enhance") -> {
+                processEnhanceTransformation(imageUri)
+            }
+            transform.id.contains("colorize") || transform.id.contains("ai_colorize") -> {
+                processColorizeTransformation(imageUri)
+            }
+            transform.id.contains("object_removal") || transform.id.contains("remove_object") -> {
+                processObjectRemovalTransformation(imageUri)
+            }
+            transform.id.contains("style") || transform.id.contains("artistic") -> {
+                processStyleTransferTransformation(imageUri)
+            }
+            else -> {
+                // Fallback to general AI processing
+                processGeneralAITransformation(imageUri, transform)
+            }
+        }
+    }
+
+    private fun validateAPIConfiguration(): Boolean {
+        return try {
+            com.superphoto.config.APIConfig.isConfigured()
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun processBackgroundTransformation(imageUri: Uri) {
+        lifecycleScope.launch {
+            try {
+                // Update progress steps
+                enhancedLoadingManager.updateStep(1, "Uploading image...")
+                kotlinx.coroutines.delay(500)
+                
+                enhancedLoadingManager.updateStep(2, "AI detecting objects...")
+                kotlinx.coroutines.delay(1000)
+                
+                enhancedLoadingManager.updateStep(3, "Removing background...")
+                
+                val result = backgroundRemovalProcessor.removeBackground(imageUri)
+                result.onSuccess { backgroundResult ->
+                    val uri = saveBitmapToTempFile(backgroundResult.processedBitmap)
+                    processedImageUri = uri
+                    
+                    // Hide enhanced loading
+                    enhancedLoadingManager.hide()
                     showProcessingState(false)
-                    Toast.makeText(context, "Please select a target face image", Toast.LENGTH_SHORT).show()
-                    return
+                    
+                    uri?.let { 
+                        showResult(it)
+                        showSuccessMessage("Background removed successfully!")
+                    } ?: run {
+                        showErrorMessage("Failed to save processed image")
+                    }
+                }.onFailure { error ->
+                    enhancedLoadingManager.hide()
+                    handleProcessingError("Background removal", error)
                 }
+            } catch (e: Exception) {
+                enhancedLoadingManager.hide()
+                handleProcessingError("Background removal", e)
+            }
+        }
+    }
+
+    private fun processFaceSwapTransformation(imageUri: Uri) {
+        val targetUri = targetFaceUri
+        if (targetUri == null) {
+            enhancedLoadingManager.hide()
+            showProcessingState(false)
+            showErrorMessage("Please select a target face image")
+            return
+        }
+        
+        lifecycleScope.launch {
+            try {
+                // Update progress steps
+                enhancedLoadingManager.updateStep(1, "Uploading images...")
+                kotlinx.coroutines.delay(500)
+                
+                enhancedLoadingManager.updateStep(2, "AI detecting faces...")
+                kotlinx.coroutines.delay(1000)
+                
+                enhancedLoadingManager.updateStep(3, "Swapping faces...")
                 
                 faceSwapProcessor.swapFaces(
                     sourceImageUri = imageUri,
                     targetFaceUri = targetUri,
                     onSuccess = { processedUri ->
                         processedImageUri = processedUri
+                        
+                        // Hide enhanced loading
+                        enhancedLoadingManager.hide()
                         showProcessingState(false)
+                        
                         showResult(processedUri)
+                        showSuccessMessage("Face swap completed successfully!")
                     },
                     onError = { error ->
-                        showProcessingState(false)
-                        Toast.makeText(context, "Face swap failed: $error", Toast.LENGTH_LONG).show()
+                        enhancedLoadingManager.hide()
+                        handleProcessingError("Face swap", Exception(error))
                     }
                 )
+            } catch (e: Exception) {
+                enhancedLoadingManager.hide()
+                handleProcessingError("Face swap", e)
             }
-            transform.id.contains("enhance") || transform.id.contains("ai_enhance") -> {
-                // Use AI enhance processor
+        }
+    }
+
+    private fun processEnhanceTransformation(imageUri: Uri) {
+        lifecycleScope.launch {
+            try {
+                // Update progress steps
+                enhancedLoadingManager.updateStep(1, "Uploading image...")
+                kotlinx.coroutines.delay(500)
+                
+                enhancedLoadingManager.updateStep(2, "AI analyzing quality...")
+                kotlinx.coroutines.delay(1000)
+                
+                enhancedLoadingManager.updateStep(3, "Enhancing image...")
+                
                 aiEnhanceProcessor.enhanceImage(
                     imageUri = imageUri,
                     onSuccess = { processedUri ->
                         processedImageUri = processedUri
+                        
+                        // Hide enhanced loading
+                        enhancedLoadingManager.hide()
                         showProcessingState(false)
+                        
                         showResult(processedUri)
+                        showSuccessMessage("Image enhanced successfully!")
                     },
                     onError = { error ->
-                        showProcessingState(false)
-                        Toast.makeText(context, "AI enhancement failed: $error", Toast.LENGTH_LONG).show()
+                        enhancedLoadingManager.hide()
+                        handleProcessingError("AI enhancement", Exception(error))
                     }
                 )
+            } catch (e: Exception) {
+                enhancedLoadingManager.hide()
+                handleProcessingError("AI enhancement", e)
             }
-            transform.id.contains("colorize") || transform.id.contains("ai_colorize") -> {
-                // Use AI colorize processor
+        }
+    }
+
+    private fun processColorizeTransformation(imageUri: Uri) {
+        lifecycleScope.launch {
+            try {
+                // Update progress steps
+                enhancedLoadingManager.updateStep(1, "Uploading image...")
+                kotlinx.coroutines.delay(500)
+                
+                enhancedLoadingManager.updateStep(2, "AI analyzing colors...")
+                kotlinx.coroutines.delay(1000)
+                
+                enhancedLoadingManager.updateStep(3, "Colorizing image...")
+                
                 aiColorizeProcessor.colorizeImage(
                     imageUri = imageUri,
                     onSuccess = { processedUri ->
                         processedImageUri = processedUri
+                        
+                        // Hide enhanced loading
+                        enhancedLoadingManager.hide()
                         showProcessingState(false)
+                        
                         showResult(processedUri)
+                        showSuccessMessage("Image colorized successfully!")
                     },
                     onError = { error ->
-                        showProcessingState(false)
-                        Toast.makeText(context, "AI colorization failed: $error", Toast.LENGTH_LONG).show()
+                        enhancedLoadingManager.hide()
+                        handleProcessingError("AI colorization", Exception(error))
                     }
                 )
+            } catch (e: Exception) {
+                enhancedLoadingManager.hide()
+                handleProcessingError("AI colorization", e)
             }
-            transform.id.contains("object_removal") || transform.id.contains("remove_object") -> {
-                // Use object removal processor
+        }
+    }
+
+    private fun processObjectRemovalTransformation(imageUri: Uri) {
+        lifecycleScope.launch {
+            try {
+                // Update progress steps
+                enhancedLoadingManager.updateStep(1, "Uploading image...")
+                kotlinx.coroutines.delay(500)
+                
+                enhancedLoadingManager.updateStep(2, "AI detecting objects...")
+                kotlinx.coroutines.delay(1000)
+                
+                enhancedLoadingManager.updateStep(3, "Removing objects...")
+                
                 objectRemovalProcessor.removeObject(
                     imageUri = imageUri,
                     objectToRemove = "auto-detect",
                     onSuccess = { processedUri ->
                         processedImageUri = processedUri
+                        
+                        // Hide enhanced loading
+                        enhancedLoadingManager.hide()
                         showProcessingState(false)
+                        
                         showResult(processedUri)
+                        showSuccessMessage("Object removed successfully!")
                     },
                     onError = { error ->
-                        showProcessingState(false)
-                        Toast.makeText(context, "Object removal failed: $error", Toast.LENGTH_LONG).show()
+                        enhancedLoadingManager.hide()
+                        handleProcessingError("Object removal", Exception(error))
                     }
                 )
+            } catch (e: Exception) {
+                enhancedLoadingManager.hide()
+                handleProcessingError("Object removal", e)
             }
-            transform.id.contains("style") || transform.id.contains("artistic") || 
-            transform.id.contains("impressionist") || transform.id.contains("expressionist") ||
-            transform.id.contains("cubist") || transform.id.contains("surrealist") ||
-            transform.id.contains("pop_art") || transform.id.contains("abstract") ||
-            transform.id.contains("watercolor") || transform.id.contains("oil_painting") ||
-            transform.id.contains("sketch") || transform.id.contains("anime") ||
-            transform.id.contains("vintage") || transform.id.contains("noir") -> {
-                // Use style transfer processor
-                val styleName = extractStyleFromTransformationId(transform.id)
+        }
+    }
+
+    private fun processStyleTransferTransformation(imageUri: Uri) {
+        lifecycleScope.launch {
+            try {
+                // Update progress steps
+                enhancedLoadingManager.updateStep(1, "Uploading image...")
+                kotlinx.coroutines.delay(500)
+                
+                enhancedLoadingManager.updateStep(2, "AI analyzing style...")
+                kotlinx.coroutines.delay(1000)
+                
+                enhancedLoadingManager.updateStep(3, "Applying style...")
+                
+                val styleName = getStyleNameFromTransformationId(transformation?.id ?: "")
                 styleTransferProcessor.transferStyleByName(
                     imageUri = imageUri,
                     styleName = styleName,
                     intensity = 0.8f,
-                    onSuccess = { processedUri ->
+                    onSuccess = { processedUri: Uri ->
                         processedImageUri = processedUri
+                        
+                        // Hide enhanced loading
+                        enhancedLoadingManager.hide()
                         showProcessingState(false)
+                        
                         showResult(processedUri)
+                        showSuccessMessage("Style applied successfully!")
                     },
-                    onError = { error ->
-                        showProcessingState(false)
-                        Toast.makeText(context, "Style transfer failed: $error", Toast.LENGTH_LONG).show()
+                    onError = { error: String ->
+                        enhancedLoadingManager.hide()
+                        handleProcessingError("Style transfer", Exception(error))
                     }
                 )
+            } catch (e: Exception) {
+                enhancedLoadingManager.hide()
+                handleProcessingError("Style transfer", e)
             }
-            else -> {
-                // Use general Gemini AI processor for other transformations
+        }
+    }
+
+    private fun processGeneralAITransformation(imageUri: Uri, transform: TransformationConstants.Transformation) {
+        lifecycleScope.launch {
+            try {
+                // Update progress steps
+                enhancedLoadingManager.updateStep(1, "Uploading image...")
+                kotlinx.coroutines.delay(500)
+                
+                enhancedLoadingManager.updateStep(2, "AI processing...")
+                kotlinx.coroutines.delay(1000)
+                
+                enhancedLoadingManager.updateStep(3, "Generating result...")
+                
                 geminiProcessor.processImage(
                     imageUri = imageUri,
                     prompt = transform.geminiPrompt,
                     onSuccess = { processedUri ->
                         processedImageUri = processedUri
+                        
+                        // Hide enhanced loading
+                        enhancedLoadingManager.hide()
                         showProcessingState(false)
+                        
                         showResult(processedUri)
+                        showSuccessMessage("Transformation completed successfully!")
                     },
                     onError = { error ->
-                        showProcessingState(false)
-                        Toast.makeText(context, "Processing failed: $error", Toast.LENGTH_LONG).show()
+                        enhancedLoadingManager.hide()
+                        handleProcessingError("AI transformation", Exception(error))
                     }
                 )
+            } catch (e: Exception) {
+                enhancedLoadingManager.hide()
+                handleProcessingError("AI transformation", e)
             }
         }
+    }
+
+    private fun handleProcessingError(operation: String, error: Throwable) {
+        showProcessingState(false)
+        
+        val errorMessage = when {
+            error.message?.contains("network", ignoreCase = true) == true -> 
+                "Network error. Please check your internet connection and try again."
+            error.message?.contains("api", ignoreCase = true) == true -> 
+                "API error. Please check your API configuration."
+            error.message?.contains("timeout", ignoreCase = true) == true -> 
+                "Request timeout. Please try again with a smaller image."
+            error.message?.contains("quota", ignoreCase = true) == true -> 
+                "API quota exceeded. Please try again later."
+            error.message?.contains("unauthorized", ignoreCase = true) == true -> 
+                "Unauthorized access. Please check your API key."
+            else -> "$operation failed: ${error.message ?: "Unknown error"}"
+        }
+        
+        showErrorMessage(errorMessage)
+        Log.e("AITransformationFragment", "$operation error", error)
+    }
+
+    private fun showErrorMessage(message: String) {
+        Toast.makeText(context, "❌ $message", Toast.LENGTH_LONG).show()
+    }
+
+    private fun showSuccessMessage(message: String) {
+        Toast.makeText(context, "✅ $message", Toast.LENGTH_SHORT).show()
     }
 
     private fun showProcessingState(isProcessing: Boolean) {
@@ -406,6 +622,15 @@ class AITransformationFragment : Fragment() {
         processingText.visibility = if (isProcessing) View.VISIBLE else View.GONE
         processButton.isEnabled = !isProcessing
         selectImageButton.isEnabled = !isProcessing
+        selectTargetFaceButton.isEnabled = !isProcessing
+        
+        if (isProcessing) {
+            processButton.text = "Processing..."
+            processButton.alpha = 0.6f
+        } else {
+            processButton.text = "Process Image"
+            processButton.alpha = 1.0f
+        }
     }
 
     private fun showResult(resultUri: Uri) {
@@ -475,32 +700,64 @@ class AITransformationFragment : Fragment() {
     
     private fun generateSmartSuggestions() {
         selectedImageUri?.let { imageUri ->
-            // Show loading state
-            suggestionsLoadingLayout.visibility = View.VISIBLE
-            smartSuggestionsRecyclerView.visibility = View.GONE
-            smartSuggestionsCard.visibility = View.VISIBLE
-            
-            // Generate suggestions using SmartSuggestionsProcessor
-            smartSuggestionsProcessor.analyzeImageAndSuggest(
-                imageUri = imageUri,
-                onSuccess = { suggestions ->
-                    // Hide loading state
-                    suggestionsLoadingLayout.visibility = View.GONE
-                    smartSuggestionsRecyclerView.visibility = View.VISIBLE
-                    
-                    // Update adapter with suggestions
-                    smartSuggestionsAdapter.updateSuggestions(suggestions)
-                    
-                    Toast.makeText(context, "✨ Smart suggestions generated!", Toast.LENGTH_SHORT).show()
-                },
-                onError = { error ->
-                    // Hide loading state
-                    suggestionsLoadingLayout.visibility = View.GONE
-                    smartSuggestionsCard.visibility = View.GONE
-                    
-                    Toast.makeText(context, "Failed to generate suggestions: $error", Toast.LENGTH_LONG).show()
-                }
+            // Show enhanced loading for suggestions
+            val suggestionsConfig = EnhancedLoadingManager.LoadingConfig(
+                title = "🤖 AI Analysis",
+                message = "Analyzing your image to suggest transformations...",
+                step1Text = "📤 Uploading image...",
+                step2Text = "🧠 AI analyzing content...",
+                step3Text = "💡 Generating suggestions...",
+                estimatedTime = "10-15 seconds",
+                showCancel = true
             )
+            
+            enhancedLoadingManager.show(suggestionsConfig)
+            enhancedLoadingManager.setOnCancelListener {
+                // Cancel callback - hide suggestions card
+                smartSuggestionsCard.visibility = View.GONE
+            }
+            
+            lifecycleScope.launch {
+                try {
+                    // Update progress steps
+                    enhancedLoadingManager.updateStep(1, "Uploading image...")
+                    kotlinx.coroutines.delay(500)
+                    
+                    enhancedLoadingManager.updateStep(2, "AI analyzing content...")
+                    kotlinx.coroutines.delay(1000)
+                    
+                    enhancedLoadingManager.updateStep(3, "Generating suggestions...")
+                    
+                    // Generate suggestions using SmartSuggestionsProcessor
+                    smartSuggestionsProcessor.analyzeImageAndSuggest(
+                        imageUri = imageUri,
+                        onSuccess = { suggestions ->
+                            // Hide enhanced loading
+                            enhancedLoadingManager.hide()
+                            
+                            // Show suggestions
+                            smartSuggestionsRecyclerView.visibility = View.VISIBLE
+                            smartSuggestionsCard.visibility = View.VISIBLE
+                            
+                            // Update adapter with suggestions
+                            smartSuggestionsAdapter.updateSuggestions(suggestions)
+                            
+                            Toast.makeText(context, "✨ Smart suggestions generated!", Toast.LENGTH_SHORT).show()
+                        },
+                        onError = { error ->
+                            // Hide enhanced loading
+                            enhancedLoadingManager.hide()
+                            smartSuggestionsCard.visibility = View.GONE
+                            
+                            Toast.makeText(context, "Failed to generate suggestions: $error", Toast.LENGTH_LONG).show()
+                        }
+                    )
+                } catch (e: Exception) {
+                    enhancedLoadingManager.hide()
+                    smartSuggestionsCard.visibility = View.GONE
+                    Toast.makeText(context, "Error generating suggestions: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -522,6 +779,59 @@ class AITransformationFragment : Fragment() {
         } catch (e: Exception) {
             Log.e("AITransformationFragment", "Failed to save bitmap to temp file", e)
             null
+        }
+    }
+
+    /**
+     * Map transformation ID thành style name cho StyleTransferProcessor
+     */
+    private fun getStyleNameFromTransformationId(transformationId: String): String {
+        return when {
+            transformationId.contains("impressionist") -> "impressionist"
+            transformationId.contains("expressionist") -> "expressionist"
+            transformationId.contains("cubist") -> "cubist"
+            transformationId.contains("surrealist") -> "surrealist"
+            transformationId.contains("pop_art") -> "pop_art"
+            transformationId.contains("abstract") -> "abstract"
+            transformationId.contains("watercolor") -> "watercolor"
+            transformationId.contains("oil_painting") -> "oil_painting"
+            transformationId.contains("sketch") -> "sketch"
+            transformationId.contains("anime") -> "anime"
+            transformationId.contains("vintage") -> "vintage"
+            transformationId.contains("noir") -> "noir"
+            else -> "impressionist" // default style
+        }
+    }
+
+    /**
+     * Lấy loading configuration phù hợp với loại transformation
+     */
+    private fun getLoadingConfigForTransformation(transform: TransformationConstants.Transformation): EnhancedLoadingManager.LoadingConfig {
+        return when {
+            transform.id.startsWith("bg_") || transform.id.contains("background") -> {
+                EnhancedLoadingManager.backgroundRemovalConfig()
+            }
+            transform.id.contains("face_swap") || transform.id.contains("faceswap") -> {
+                EnhancedLoadingManager.faceSwapConfig()
+            }
+            transform.id.contains("enhance") || transform.id.contains("ai_enhance") -> {
+                EnhancedLoadingManager.aiEnhanceConfig()
+            }
+            transform.id.contains("colorize") || transform.id.contains("ai_colorize") -> {
+                EnhancedLoadingManager.colorizeConfig()
+            }
+            transform.id.contains("object_removal") || transform.id.contains("remove_object") -> {
+                EnhancedLoadingManager.objectRemovalConfig()
+            }
+            else -> {
+                // Default AI processing config
+                EnhancedLoadingManager.LoadingConfig(
+                    title = transform.name,
+                    message = "AI is processing your image...",
+                    icon = transform.icon,
+                    estimatedTime = "20-40 seconds"
+                )
+            }
         }
     }
 

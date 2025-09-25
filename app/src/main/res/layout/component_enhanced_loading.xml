@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="@drawable/loading_background">
+
+    <!-- Main Loading Animation -->
+    <FrameLayout
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="16dp">
+
+        <!-- Outer Ring -->
+        <ProgressBar
+            android:id="@+id/outerProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:indeterminateTint="@color/accent_primary"
+            android:indeterminateTintMode="src_atop" />
+
+        <!-- Inner Ring -->
+        <ProgressBar
+            android:id="@+id/innerProgressBar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/accent_secondary"
+            android:indeterminateTintMode="src_atop" />
+
+        <!-- Center Icon -->
+        <TextView
+            android:id="@+id/loadingIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="🤖"
+            android:textSize="24sp" />
+
+    </FrameLayout>
+
+    <!-- Loading Title -->
+    <TextView
+        android:id="@+id/loadingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="AI Processing"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Loading Message -->
+    <TextView
+        android:id="@+id/loadingMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Analyzing your image with advanced AI..."
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:maxLines="2" />
+
+    <!-- Progress Steps -->
+    <LinearLayout
+        android:id="@+id/progressStepsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <!-- Step 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <View
+                android:id="@+id/step1Indicator"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/step_indicator_active" />
+
+            <TextView
+                android:id="@+id/step1Text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📤 Uploading image..."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/step1Status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✓"
+                android:textColor="@color/success_color"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Step 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <View
+                android:id="@+id/step2Indicator"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/step_indicator_inactive" />
+
+            <TextView
+                android:id="@+id/step2Text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🧠 AI Analysis..."
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/step2Status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✓"
+                android:textColor="@color/success_color"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Step 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <View
+                android:id="@+id/step3Indicator"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/step_indicator_inactive" />
+
+            <TextView
+                android:id="@+id/step3Text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="✨ Generating result..."
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/step3Status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✓"
+                android:textColor="@color/success_color"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Estimated Time -->
+    <TextView
+        android:id="@+id/estimatedTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="⏱️ Estimated time: 15-30 seconds"
+        android:textColor="@color/text_tertiary"
+        android:textSize="11sp" />
+
+    <!-- Cancel Button -->
+    <Button
+        android:id="@+id/cancelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:background="@drawable/button_text_only"
+        android:text="Cancel"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:paddingHorizontal="16dp" />
+
+</LinearLayout>

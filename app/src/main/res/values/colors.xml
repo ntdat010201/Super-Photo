@@ -88,4 +88,12 @@
     <color name="surface_primary">#1A1F2E</color>
     <color name="surface_secondary">#1F2937</color>
     <color name="accent_primary">#8B5CF6</color>
+    
+    <!-- Missing colors for enhanced loading component -->
+    <color name="text_tertiary">#6B7280</color>
+    <color name="accent_secondary">#10B981</color>
+    <color name="success_color">#10B981</color>
+    
+    <!-- Ripple effect colors -->
+    <color name="ripple_light">#20FFFFFF</color>
 </resources>
