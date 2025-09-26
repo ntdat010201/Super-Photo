@@ -21,7 +21,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.superphoto.R
-import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.data.repository.AIGenerationManager
 import com.example.superphoto.utils.GenerationStatusManager
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -29,7 +29,7 @@ import org.koin.android.ext.android.inject
 class LipSyncFragment : Fragment() {
 
     // Dependency injection
-    private val aiGenerationRepository: AIGenerationRepository by inject()
+    private val aiGenerationManager: AIGenerationManager by inject()
     private lateinit var statusManager: GenerationStatusManager
 
     // UI Elements
@@ -85,7 +85,7 @@ class LipSyncFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusManager = GenerationStatusManager(requireContext(), aiGenerationRepository, lifecycleScope)
+        statusManager = GenerationStatusManager(requireContext(), aiGenerationManager, lifecycleScope)
         initViews(view)
         setupClickListeners()
         updateGenerateButtonState()
@@ -240,7 +240,7 @@ class LipSyncFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val result = aiGenerationRepository.generateLipSync(
+                val result = aiGenerationManager.generateLipSync(
                     videoUri = selectedVideoUri!!,
                     audioUri = selectedAudioUri!!,
                     enhanceQuality = enhanceQuality,

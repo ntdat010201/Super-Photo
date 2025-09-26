@@ -62,6 +62,103 @@ class GeminiRepository(
         }
     }
     
+    suspend fun generateContent(prompt: String): Result<String> {
+        return try {
+            val request = GeminiRequest(
+                contents = listOf(
+                    Content(
+                        parts = listOf(
+                            Part(text = prompt)
+                        )
+                    )
+                ),
+                generationConfig = GenerationConfig(
+                    temperature = 0.8f,
+                    maxOutputTokens = 2048
+                )
+            )
+            
+            val response = apiService.generateContent(apiKey, request)
+            
+            if (response.isSuccessful) {
+                val geminiResponse = response.body()
+                if (geminiResponse?.error != null) {
+                    Result.failure(Exception("API Error: ${geminiResponse.error.message}"))
+                } else {
+                    val generatedText = geminiResponse?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                    if (generatedText != null) {
+                        Result.success(generatedText)
+                    } else {
+                        Result.failure(Exception("No content generated"))
+                    }
+                }
+            } else {
+                Result.failure(Exception("HTTP Error: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    suspend fun generateContentWithImage(
+        prompt: String, 
+        imageUri: android.net.Uri, 
+        context: android.content.Context
+    ): Result<String> {
+        return try {
+            // Convert URI to Bitmap first
+            val inputStream = context.contentResolver.openInputStream(imageUri)
+            val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+            
+            if (bitmap == null) {
+                return Result.failure(Exception("Could not decode image from URI"))
+            }
+            
+            val base64Image = bitmapToBase64(bitmap)
+            
+            val request = GeminiRequest(
+                contents = listOf(
+                    Content(
+                        parts = listOf(
+                            Part(text = prompt),
+                            Part(
+                                inlineData = InlineData(
+                                    mimeType = "image/jpeg",
+                                    data = base64Image
+                                )
+                            )
+                        )
+                    )
+                ),
+                generationConfig = GenerationConfig(
+                    temperature = 0.8f,
+                    maxOutputTokens = 2048
+                )
+            )
+            
+            val response = apiService.generateContent(apiKey, request)
+            
+            if (response.isSuccessful) {
+                val geminiResponse = response.body()
+                if (geminiResponse?.error != null) {
+                    Result.failure(Exception("API Error: ${geminiResponse.error.message}"))
+                } else {
+                    val generatedText = geminiResponse?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                    if (generatedText != null) {
+                        Result.success(generatedText)
+                    } else {
+                        Result.failure(Exception("No content generated"))
+                    }
+                }
+            } else {
+                Result.failure(Exception("HTTP Error: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
     private fun createCelebrityPrompt(celebrityName: String): String {
         return """
             Analyze this photo and provide detailed instructions for transforming the person's appearance to look like $celebrityName.

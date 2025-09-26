@@ -36,6 +36,8 @@ import com.example.superphoto.ui.adapter.SmartSuggestionsAdapter
 import com.example.superphoto.ui.components.EnhancedLoadingManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import java.io.Serializable
+import com.example.superphoto.utils.StorageHelper
+import android.graphics.BitmapFactory
 
 class AITransformationFragment : Fragment() {
 
@@ -644,8 +646,38 @@ class AITransformationFragment : Fragment() {
 
     private fun saveProcessedImage() {
         processedImageUri?.let { uri ->
-            // Implement save to gallery
-            Toast.makeText(context, "💾 Image saved to gallery!", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                try {
+                    // Read bitmap from URI
+                    val inputStream = requireContext().contentResolver.openInputStream(uri)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream?.close()
+                    
+                    if (bitmap != null) {
+                        // Save to external storage using StorageHelper
+                        val savedFile = StorageHelper.saveImageToExternalStorage(
+                            context = requireContext(),
+                            bitmap = bitmap,
+                            subfolder = "ai_transformations",
+                            filename = "transformed_${System.currentTimeMillis()}.jpg"
+                        )
+                        
+                        savedFile?.let { file ->
+                            Toast.makeText(context, 
+                                "💾 Image saved to ${file.absolutePath}", 
+                                Toast.LENGTH_LONG).show()
+                            Log.d("AITransformation", "Image saved successfully: ${file.absolutePath}")
+                        } ?: run {
+                            Toast.makeText(context, "❌ Failed to save image", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(context, "❌ Failed to read image", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("AITransformation", "Error saving image", e)
+                    Toast.makeText(context, "❌ Error saving image: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

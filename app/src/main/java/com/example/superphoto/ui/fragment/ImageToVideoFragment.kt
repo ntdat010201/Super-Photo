@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.superphoto.R
 import com.example.superphoto.adapter.SelectedImageAdapter
-import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.data.repository.AIGenerationManager
 import com.example.superphoto.data.model.VideoDuration
 import com.example.superphoto.utils.GenerationStatusManager
 import kotlinx.coroutines.launch
@@ -34,7 +34,7 @@ import org.koin.android.ext.android.inject
 class ImageToVideoFragment : Fragment() {
 
     // Dependency injection
-    private val aiGenerationRepository: AIGenerationRepository by inject()
+    private val aiGenerationManager: AIGenerationManager by inject()
     private lateinit var statusManager: GenerationStatusManager
 
     // UI Elements
@@ -82,7 +82,7 @@ class ImageToVideoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusManager = GenerationStatusManager(requireContext(), aiGenerationRepository, lifecycleScope)
+        statusManager = GenerationStatusManager(requireContext(), aiGenerationManager, lifecycleScope)
         initViews(view)
         setupClickListeners()
         setupRecyclerView()
@@ -192,7 +192,7 @@ class ImageToVideoFragment : Fragment() {
             try {
                 Toast.makeText(requireContext(), "Starting video generation...", Toast.LENGTH_SHORT).show()
                 
-                val result = aiGenerationRepository.generateVideoFromImages(
+                val result = aiGenerationManager.generateVideoFromImages(
                     imageUris = selectedImages,
                     prompt = prompt,
                     negativePrompt = negativePrompt,

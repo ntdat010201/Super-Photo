@@ -1,7 +1,13 @@
 package com.example.superphoto.ui.activities
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.superphoto.R
 import com.example.superphoto.base.BaseActivity
@@ -19,11 +25,25 @@ class MainActivity : BaseActivity() {
     private var currentFragmentIndex = 0
     private var previousFragmentIndex = 0 // Track previous fragment before SearchFragment
 
+    // Permission launcher
+    private val storagePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(this, "Quyền lưu trữ đã được cấp", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Cần quyền lưu trữ để lưu ảnh/video", Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         enableEdgeToEdge()
         setContentView(binding.root)
+
+        // Request storage permission
+        requestStoragePermission()
 
         setupBottomNavigation()
         setupClickListeners()
@@ -144,5 +164,47 @@ class MainActivity : BaseActivity() {
     fun returnFromSearch() {
         // Return to the previous fragment that was active before SearchFragment
         selectBottomNavItem(previousFragmentIndex)
+    }
+
+    fun requestStoragePermission() {
+        // For Android 13+ (API 33), we need different permissions
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ doesn't need WRITE_EXTERNAL_STORAGE for MediaStore
+            return // No permission needed for MediaStore on Android 13+
+        } else {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        }
+
+        when {
+            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED -> {
+                // Permission already granted
+                return
+            }
+            shouldShowRequestPermissionRationale(permission) -> {
+                // Show explanation to user
+                Toast.makeText(
+                    this,
+                    "Ứng dụng cần quyền lưu trữ để lưu ảnh và video vào thiết bị",
+                    Toast.LENGTH_LONG
+                ).show()
+                storagePermissionLauncher.launch(permission)
+            }
+            else -> {
+                // Request permission directly
+                storagePermissionLauncher.launch(permission)
+            }
+        }
+    }
+
+    // Public method to check if storage permission is granted
+    fun hasStoragePermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            true // No permission needed for MediaStore on Android 13+
+        } else {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        }
     }
 }

@@ -25,9 +25,11 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.superphoto.R
-import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.data.repository.AIGenerationManager
 import com.example.superphoto.data.model.AspectRatio
 import com.example.superphoto.data.model.StyleOption
+import com.example.superphoto.utils.StorageHelper
+import android.graphics.BitmapFactory
 import com.example.superphoto.utils.GenerationStatusManager
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -35,7 +37,7 @@ import org.koin.android.ext.android.inject
 class AIImagesFragment : Fragment() {
 
     // Dependency injection
-    private val aiGenerationRepository: AIGenerationRepository by inject()
+    private val aiGenerationManager: AIGenerationManager by inject()
     
     // Status manager
     private lateinit var statusManager: GenerationStatusManager
@@ -71,6 +73,7 @@ class AIImagesFragment : Fragment() {
     private lateinit var resultSection: LinearLayout
     private lateinit var resultImageView: ImageView
     private lateinit var loadingProgress: ProgressBar
+    private lateinit var filePathText: TextView
     private lateinit var downloadButton: Button
     private lateinit var shareButton: Button
 
@@ -109,7 +112,7 @@ class AIImagesFragment : Fragment() {
         updateStyleSelection("None") // Set default selection
         
         // Initialize status manager
-        statusManager = GenerationStatusManager(requireContext(), aiGenerationRepository, lifecycleScope)
+        statusManager = GenerationStatusManager(requireContext(), aiGenerationManager, lifecycleScope)
     }
 
     private fun initViews(view: View) {
@@ -147,6 +150,7 @@ class AIImagesFragment : Fragment() {
         resultSection = view.findViewById(R.id.resultSection)
         resultImageView = view.findViewById(R.id.resultImageView)
         loadingProgress = view.findViewById(R.id.loadingProgress)
+        filePathText = view.findViewById(R.id.filePathText)
         downloadButton = view.findViewById(R.id.downloadButton)
         shareButton = view.findViewById(R.id.shareButton)
     }
@@ -412,7 +416,7 @@ class AIImagesFragment : Fragment() {
                     else -> AspectRatio.SQUARE
                 }
 
-                val result = aiGenerationRepository.generateAIImage(
+                val result = aiGenerationManager.generateAIImage(
                     sourceImageUri = selectedImageUri,
                     prompt = prompt,
                     aspectRatio = aspectRatioOption.value,
@@ -515,6 +519,13 @@ class AIImagesFragment : Fragment() {
         downloadButton.visibility = View.VISIBLE
         shareButton.visibility = View.VISIBLE
         
+        // Show file path if available
+        generatedImageUri?.let { uri ->
+            val filePath = uri.path ?: "Unknown path"
+            filePathText.text = "📁 Saved to: $filePath"
+            filePathText.visibility = View.VISIBLE
+        }
+        
         // Load generated image
         resultImageView.setImageURI(generatedImageUri)
         
@@ -529,6 +540,7 @@ class AIImagesFragment : Fragment() {
         // Hide loading and result section
         loadingProgress.visibility = View.GONE
         resultSection.visibility = View.GONE
+        filePathText.visibility = View.GONE
         
         // Re-enable generate button
         generateButton.isEnabled = true
@@ -571,18 +583,62 @@ class AIImagesFragment : Fragment() {
             return
         }
 
-        try {
-            // Create download intent
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(generatedImageUri, "image/*")
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            
-            // For demo purposes, just show a toast
-            // In real implementation, you would save the image to gallery
-            Toast.makeText(context, "Image download started", Toast.LENGTH_SHORT).show()
-            
-        } catch (e: Exception) {
-            Toast.makeText(context, "Failed to download image", Toast.LENGTH_SHORT).show()
+        // Kiểm tra quyền storage trước khi download
+        val mainActivity = activity as? com.example.superphoto.ui.activities.MainActivity
+        if (mainActivity != null && !mainActivity.hasStoragePermission()) {
+            Toast.makeText(context, "Download failed: Storage permission required", Toast.LENGTH_LONG).show()
+            mainActivity.requestStoragePermission()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                // Kiểm tra URI có hợp lệ không
+                if (generatedImageUri.toString().isEmpty()) {
+                    Toast.makeText(context, "Download failed: Invalid image URI", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+                
+                val inputStream = requireContext().contentResolver.openInputStream(generatedImageUri!!)
+                if (inputStream == null) {
+                    Toast.makeText(context, "Download failed: Cannot open image stream", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+                
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                
+                if (bitmap != null) {
+                    val fileName = "ai_generated_image_${System.currentTimeMillis()}.jpg"
+                    
+                    // Kiểm tra quyền storage trước khi lưu
+                    if (!StorageHelper.isExternalStorageWritable()) {
+                        Toast.makeText(context, "Download failed: External storage not writable", Toast.LENGTH_LONG).show()
+                        return@launch
+                    }
+                    
+                    val savedFile = StorageHelper.saveImageToExternalStorage(
+                        requireContext(),
+                        bitmap,
+                        fileName,
+                        "ai_images"
+                    )
+                    
+                    if (savedFile != null) {
+                        Toast.makeText(context, "✅ Ảnh đã được lưu: ${savedFile.absolutePath}", Toast.LENGTH_LONG).show()
+                        // Cập nhật file path text
+                        filePathText.text = "Saved: ${savedFile.absolutePath}"
+                    } else {
+                        Toast.makeText(context, "Download failed: Storage permission denied or insufficient space", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    Toast.makeText(context, "Download failed: Cannot decode image bitmap", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: SecurityException) {
+                Toast.makeText(context, "Download failed: Storage permission denied", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Download failed: ${e.message ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 

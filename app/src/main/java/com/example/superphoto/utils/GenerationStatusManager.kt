@@ -5,7 +5,7 @@ import android.net.Uri
 import android.os.Environment
 import android.widget.Toast
 import androidx.lifecycle.LifecycleCoroutineScope
-import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.data.repository.AIGenerationManager
 import com.example.superphoto.data.model.GenerationStatusResponse
 import com.example.superphoto.data.model.DownloadResponse
 import kotlinx.coroutines.delay
@@ -16,7 +16,7 @@ import java.net.URL
 
 class GenerationStatusManager(
     private val context: Context,
-    private val repository: AIGenerationRepository,
+    private val repository: AIGenerationManager,
     private val lifecycleScope: LifecycleCoroutineScope
 ) {
     
@@ -113,37 +113,43 @@ class GenerationStatusManager(
     
     private suspend fun downloadFile(url: String, fileName: String, callback: StatusCallback) {
         try {
-            // Create downloads directory
-            val downloadsDir = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "SuperPhoto")
-            if (!downloadsDir.exists()) {
-                downloadsDir.mkdirs()
-            }
-            
-            val file = File(downloadsDir, fileName)
-            
-            // Download file
+            // Download file to external storage using StorageHelper
             val connection = URL(url).openConnection()
             connection.connect()
             
             val inputStream = connection.getInputStream()
-            val outputStream = FileOutputStream(file)
-            
-            val buffer = ByteArray(1024)
-            var bytesRead: Int
-            
-            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                outputStream.write(buffer, 0, bytesRead)
-            }
-            
-            outputStream.close()
+            val buffer = inputStream.readBytes()
             inputStream.close()
             
-            // Return file URI
-            val fileUri = Uri.fromFile(file)
-            callback.onCompleted(fileUri)
+            // Determine file type and save accordingly
+            val fileExtension = getFileExtension(url)
+            val subfolder = when (fileExtension) {
+                "mp4" -> "ai_videos"
+                "mp3" -> "ai_audio"
+                else -> "ai_files"
+            }
             
-            // Show success message
-            Toast.makeText(context, "Downloaded: ${file.name}", Toast.LENGTH_SHORT).show()
+            val savedFile = if (fileExtension == "mp4") {
+                // For video files, use StorageHelper to save to external storage
+                StorageHelper.saveVideoToExternalStorage(context, buffer, fileName, subfolder)
+            } else {
+                // For other files, save to Downloads folder
+                val downloadsDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SuperPhoto")
+                if (!downloadsDir.exists()) {
+                    downloadsDir.mkdirs()
+                }
+                val file = File(downloadsDir, fileName)
+                file.writeBytes(buffer)
+                file
+            }
+            
+            if (savedFile != null) {
+                val fileUri = Uri.fromFile(savedFile)
+                callback.onCompleted(fileUri)
+                Toast.makeText(context, "📁 File saved to: ${savedFile.absolutePath}", Toast.LENGTH_LONG).show()
+            } else {
+                callback.onFailed("Failed to save file to external storage")
+            }
             
         } catch (e: Exception) {
             callback.onFailed("File download failed: ${e.message}")

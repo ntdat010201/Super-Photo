@@ -17,7 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.superphoto.R
-import com.example.superphoto.data.repository.AIGenerationRepository
+import com.example.superphoto.data.repository.AIGenerationManager
 import com.example.superphoto.data.model.VideoDuration
 import com.example.superphoto.utils.GenerationStatusManager
 import kotlinx.coroutines.launch
@@ -26,7 +26,7 @@ import org.koin.android.ext.android.inject
 class TextToVideoFragment : Fragment() {
 
     // Dependency injection
-    private val aiGenerationRepository: AIGenerationRepository by inject()
+    private val aiGenerationManager: AIGenerationManager by inject()
     private lateinit var statusManager: GenerationStatusManager
 
     // UI Elements
@@ -65,7 +65,7 @@ class TextToVideoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusManager = GenerationStatusManager(requireContext(), aiGenerationRepository, lifecycleScope)
+        statusManager = GenerationStatusManager(requireContext(), aiGenerationManager, lifecycleScope)
         initViews(view)
         setupClickListeners()
         updateDurationSelection()
@@ -216,7 +216,7 @@ class TextToVideoFragment : Fragment() {
             try {
                 Toast.makeText(requireContext(), "Starting video generation from text...", Toast.LENGTH_SHORT).show()
                 
-                val result = aiGenerationRepository.generateVideoFromText(
+                val result = aiGenerationManager.generateVideoFromText(
                     prompt = prompt,
                     negativePrompt = negativePrompt,
                     duration = duration.seconds

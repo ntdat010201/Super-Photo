@@ -17,6 +17,7 @@ import java.io.FileOutputStream
 import java.util.*
 import java.util.concurrent.TimeUnit
 import com.superphoto.config.APIConfig
+import com.superphoto.utils.RateLimitManager
 
 class GeminiAIProcessor(private val context: Context) {
     
@@ -89,21 +90,43 @@ class GeminiAIProcessor(private val context: Context) {
     
     private suspend fun callGeminiAPI(base64Image: String, prompt: String): String {
         return withContext(Dispatchers.IO) {
-            val requestBody = createGeminiRequestBody(base64Image, prompt)
+            var lastException: Exception? = null
             
-            val request = Request.Builder()
-                .url(APIConfig.getGeminiUrl())
-                .post(requestBody)
-                .addHeader("Content-Type", "application/json")
-                .build()
-            
-            val response = client.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                throw Exception("API call failed: ${response.code} ${response.message}")
+            repeat(APIConfig.MAX_RETRIES) { attempt ->
+                try {
+                    // Wait for rate limit before making request
+                    RateLimitManager.waitForRateLimit()
+                    
+                    val requestBody = createGeminiRequestBody(base64Image, prompt)
+                    
+                    val request = Request.Builder()
+                        .url(APIConfig.getGeminiUrl())
+                        .post(requestBody)
+                        .addHeader("Content-Type", "application/json")
+                        .build()
+                    
+                    val response = client.newCall(request).execute()
+                    
+                    if (response.isSuccessful) {
+                        return@withContext response.body?.string() ?: throw Exception("Empty response body")
+                    } else {
+                        val errorMessage = "API call failed: ${response.code} ${response.message}"
+                        lastException = Exception(errorMessage)
+                        
+                        // If rate limited, wait longer before retry
+                        if (response.code == 429) {
+                            delay(APIConfig.RETRY_DELAY_MS * (attempt + 1))
+                        }
+                    }
+                } catch (e: Exception) {
+                    lastException = e
+                    if (attempt < APIConfig.MAX_RETRIES - 1) {
+                        delay(APIConfig.RETRY_DELAY_MS * (attempt + 1))
+                    }
+                }
             }
             
-            response.body?.string() ?: throw Exception("Empty response body")
+            throw lastException ?: Exception("API call failed after ${APIConfig.MAX_RETRIES} attempts")
         }
     }
     

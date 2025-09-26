@@ -13,6 +13,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.superphoto.R
 import kotlinx.coroutines.*
+import com.superphoto.utils.APIStatusHelper
+import com.superphoto.config.APIConfig
 
 /**
  * Enhanced Loading Manager với animations và progress tracking
@@ -55,6 +57,12 @@ class EnhancedLoadingManager(
      */
     fun show(config: LoadingConfig) {
         if (isShowing) return
+        
+        // Check API configuration first
+        if (!APIConfig.isConfigured()) {
+            APIStatusHelper.checkAndShowAPIStatus(context)
+            return
+        }
         
         isShowing = true
         currentStep = 0
@@ -116,6 +124,18 @@ class EnhancedLoadingManager(
      */
     fun setOnCancelListener(listener: () -> Unit) {
         onCancelListener = listener
+    }
+    
+    /**
+     * Hiển thị loading với kiểm tra API status và rate limit
+     */
+    fun showWithAPICheck(config: LoadingConfig, onProceed: () -> Unit) {
+        if (!APIStatusHelper.checkCanMakeRequest(context)) {
+            return
+        }
+        
+        show(config)
+        onProceed()
     }
     
     private fun initializeViews() {

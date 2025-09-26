@@ -35,8 +35,12 @@ class CelebrityAdapter(
         
         holder.nameText.text = celebrity.name
         
-        // Set placeholder image (in real app, use image loading library like Glide)
-        holder.imageView.setImageResource(R.drawable.ic_person_placeholder)
+        // Set celebrity image from resource or use placeholder
+        if (celebrity.imageResource != null) {
+            holder.imageView.setImageResource(celebrity.imageResource)
+        } else {
+            holder.imageView.setImageResource(R.drawable.ic_person_placeholder)
+        }
         
         // Update selection state
         val isSelected = celebrity.id == selectedCelebrityId

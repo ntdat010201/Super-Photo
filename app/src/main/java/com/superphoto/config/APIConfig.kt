@@ -7,16 +7,22 @@ package com.superphoto.config
 object APIConfig {
     
     // Gemini AI Configuration
-    const val GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE" // TODO: Replace with actual API key
+    const val GEMINI_API_KEY = "AIzaSyAKz9L1LMv9hNuTfPxx5wuJbTwEdtShIYY" // API key configured
     const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
-    const val GEMINI_MODEL = "gemini-2.0-flash-exp"
+    const val GEMINI_MODEL = "gemini-2.5-flash" // Optimized for free tier - 15 RPM
+    const val GEMINI_MODEL_PRO = "gemini-2.5-pro" // For complex tasks - 5 RPM
+    
+    // Free Tier Limits (per minute)
+    const val FREE_TIER_FLASH_RPM = 15 // Gemini 2.5 Flash
+    const val FREE_TIER_PRO_RPM = 5   // Gemini 2.5 Pro
     
     // AI Generation API Configuration
-    const val AI_GENERATION_API_KEY = "YOUR_AI_GENERATION_API_KEY_HERE" // TODO: Replace with actual API key
-    const val AI_GENERATION_BASE_URL = "https://api.superphoto.ai" // TODO: Replace with actual base URL
+    const val AI_GENERATION_API_KEY = "DEMO_MODE" // Using Gemini as fallback for demo
+    const val AI_GENERATION_BASE_URL = "https://generativelanguage.googleapis.com" // Using Gemini for demo
     
     // API Endpoints
     const val GEMINI_GENERATE_CONTENT = "$GEMINI_BASE_URL/$GEMINI_MODEL:generateContent"
+    const val GEMINI_GENERATE_CONTENT_PRO = "$GEMINI_BASE_URL/$GEMINI_MODEL_PRO:generateContent"
     
     // AI Generation Endpoints
     const val IMAGE_TO_VIDEO_ENDPOINT = "$AI_GENERATION_BASE_URL/api/v1/image-to-video"
@@ -29,9 +35,14 @@ object APIConfig {
     // Request Configuration
     const val MAX_IMAGE_SIZE = 1024 // Max width/height for image processing
     const val IMAGE_QUALITY = 80 // JPEG compression quality (0-100)
-    const val API_TIMEOUT = 30000L // 30 seconds timeout
+    const val API_TIMEOUT = 45000L // 45 seconds timeout (increased for free tier)
     const val CONNECT_TIMEOUT_SECONDS = 30L // Connection timeout in seconds
-    const val READ_TIMEOUT_SECONDS = 60L // Read timeout in seconds
+    const val READ_TIMEOUT_SECONDS = 90L // Read timeout in seconds (increased for free tier)
+    
+    // Rate Limiting Configuration
+    const val REQUEST_DELAY_MS = 4000L // 4 seconds between requests for free tier
+    const val MAX_RETRIES = 3 // Maximum retry attempts
+    const val RETRY_DELAY_MS = 2000L // Delay between retries
     
     // Processing Configuration
     const val DEFAULT_TEMPERATURE = 0.7f
@@ -58,6 +69,7 @@ object APIConfig {
     const val ENABLE_AI_PROCESSING = true
     const val ENABLE_OFFLINE_MODE = false
     const val ENABLE_CACHE = true
+    const val ENABLE_DEMO_MODE = true // Use Gemini as fallback for video/image generation
     
     // Cache Configuration
     const val CACHE_SIZE_MB = 50L
@@ -82,9 +94,36 @@ object APIConfig {
     }
     
     /**
-     * Get full API URL with key
+     * Get full API URL with key (Flash model)
      */
     fun getGeminiUrl(): String {
         return "$GEMINI_GENERATE_CONTENT?key=${getGeminiApiKey()}"
+    }
+    
+    /**
+     * Get full API URL with key (Pro model for complex tasks)
+     */
+    fun getGeminiProUrl(): String {
+        return "$GEMINI_GENERATE_CONTENT_PRO?key=${getGeminiApiKey()}"
+    }
+    
+    /**
+     * Get appropriate model URL based on task complexity
+     */
+    fun getModelUrl(useProModel: Boolean = false): String {
+        return if (useProModel) getGeminiProUrl() else getGeminiUrl()
+    }
+    
+    // Demo Mode Helper Functions
+    fun isDemoMode(): Boolean {
+        return ENABLE_DEMO_MODE && AI_GENERATION_API_KEY == "DEMO_MODE"
+    }
+    
+    fun getAIGenerationApiKey(): String {
+        return if (isDemoMode()) GEMINI_API_KEY else AI_GENERATION_API_KEY
+    }
+    
+    fun getAIGenerationBaseUrl(): String {
+        return if (isDemoMode()) GEMINI_BASE_URL else AI_GENERATION_BASE_URL
     }
 }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -24,6 +25,8 @@ import com.example.superphoto.data.repository.GeminiRepository
 import org.koin.android.ext.android.inject
 import kotlinx.coroutines.*
 import java.io.IOException
+import com.example.superphoto.utils.StorageHelper
+import androidx.lifecycle.lifecycleScope
 
 class CelebrityPhotoFragment : Fragment() {
 
@@ -68,14 +71,14 @@ class CelebrityPhotoFragment : Fragment() {
     
     // Sample celebrity data
     private val celebrities = listOf(
-        Celebrity("1", "Taylor Swift", "https://example.com/taylor.jpg"),
-        Celebrity("2", "Leonardo DiCaprio", "https://example.com/leo.jpg"),
-        Celebrity("3", "Emma Watson", "https://example.com/emma.jpg"),
-        Celebrity("4", "Ryan Reynolds", "https://example.com/ryan.jpg"),
-        Celebrity("5", "Scarlett Johansson", "https://example.com/scarlett.jpg"),
-        Celebrity("6", "Chris Evans", "https://example.com/chris.jpg"),
-        Celebrity("7", "Jennifer Lawrence", "https://example.com/jennifer.jpg"),
-        Celebrity("8", "Robert Downey Jr.", "https://example.com/rdj.jpg")
+        Celebrity("1", "Taylor Swift", "https://example.com/taylor.jpg", R.drawable.img9),
+        Celebrity("2", "Leonardo DiCaprio", "https://example.com/leo.jpg", R.drawable.img1),
+        Celebrity("3", "Emma Watson", "https://example.com/emma.jpg", R.drawable.img2),
+        Celebrity("4", "Ryan Reynolds", "https://example.com/ryan.jpg", R.drawable.img3),
+        Celebrity("5", "Scarlett Johansson", "https://example.com/scarlett.jpg", R.drawable.img4),
+        Celebrity("6", "Chris Evans", "https://example.com/chris.jpg", R.drawable.img5),
+        Celebrity("7", "Jennifer Lawrence", "https://example.com/jennifer.jpg", R.drawable.img6),
+        Celebrity("8", "Robert Downey Jr.", "https://example.com/rdj.jpg", R.drawable.img7)
     )
     
 
@@ -293,7 +296,33 @@ class CelebrityPhotoFragment : Fragment() {
     }
 
     private fun downloadResult() {
-        Toast.makeText(context, "Download feature coming soon! 📥", Toast.LENGTH_SHORT).show()
+        val resultImageView = view?.findViewById<ImageView>(R.id.resultImageView)
+        val drawable = resultImageView?.drawable
+        
+        if (drawable != null) {
+            lifecycleScope.launch {
+                try {
+                    val bitmap = (drawable as BitmapDrawable).bitmap
+                    val fileName = "celebrity_photo_${System.currentTimeMillis()}.jpg"
+                    val savedFile = StorageHelper.saveImageToExternalStorage(
+                        requireContext(),
+                        bitmap,
+                        fileName,
+                        "celebrity_photos"
+                    )
+                    
+                    if (savedFile != null) {
+                        Toast.makeText(context, "Ảnh đã được lưu vào thư viện!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Lỗi khi lưu ảnh", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Lỗi: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            Toast.makeText(context, "Không có ảnh để lưu", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun shareResult() {
