@@ -531,21 +531,46 @@ class AIImagesFragment : Fragment() {
             
             if (savedFile != null) {
                 generatedImageUri = Uri.fromFile(savedFile)
+                
+                // Hiển thị ảnh trong ImageView
                 resultImageView.setImageBitmap(bitmap)
-                filePathText.text = savedFile.absolutePath
+                
+                // Hiển thị đường dẫn file
+                filePathText.text = "Saved: ${savedFile.absolutePath}"
+                filePathText.visibility = View.VISIBLE
+                
+                // Hiển thị section kết quả với ảnh và nút download
                 showResultSection()
-                Toast.makeText(context, "Image generated successfully!", Toast.LENGTH_SHORT).show()
+                
+                Toast.makeText(context, "✅ Ảnh AI đã được tạo thành công!", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Failed to save generated image", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "❌ Không thể lưu ảnh đã tạo", Toast.LENGTH_SHORT).show()
+                hideLoadingState()
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Error saving image: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "❌ Lỗi khi lưu ảnh: ${e.message}", Toast.LENGTH_SHORT).show()
+            hideLoadingState()
         }
     }
     
     private fun showResultSection() {
+        // Hiển thị section kết quả
         resultSection.visibility = View.VISIBLE
-        hideLoadingState()
+        
+        // Ẩn loading progress
+        loadingProgress.visibility = View.GONE
+        
+        // Hiển thị ảnh kết quả
+        resultImageView.visibility = View.VISIBLE
+        
+        // Hiển thị các nút action
+        downloadButton.visibility = View.VISIBLE
+        shareButton.visibility = View.VISIBLE
+        
+        // Kích hoạt lại nút generate
+        generateButton.isEnabled = true
+        generateButton.alpha = 1f
+        generateButton.text = "Generate AI Image"
     }
 
     private fun showLoadingState() {
@@ -631,29 +656,36 @@ class AIImagesFragment : Fragment() {
 
     private fun downloadGeneratedImage() {
         if (generatedImageUri == null) {
-            Toast.makeText(context, "No image to download", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "❌ Không có ảnh để tải xuống", Toast.LENGTH_SHORT).show()
             return
         }
 
         // Kiểm tra quyền storage trước khi download
         val mainActivity = activity as? com.example.superphoto.ui.activities.MainActivity
         if (mainActivity != null && !mainActivity.hasStoragePermission()) {
-            Toast.makeText(context, "Download failed: Storage permission required", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "❌ Cần quyền truy cập bộ nhớ để tải xuống", Toast.LENGTH_LONG).show()
             mainActivity.requestStoragePermission()
             return
         }
+
+        // Hiển thị thông báo bắt đầu download
+        Toast.makeText(context, "📥 Đang tải xuống ảnh...", Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
             try {
                 // Kiểm tra URI có hợp lệ không
                 if (generatedImageUri.toString().isEmpty()) {
-                    Toast.makeText(context, "Download failed: Invalid image URI", Toast.LENGTH_LONG).show()
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, "❌ URI ảnh không hợp lệ", Toast.LENGTH_LONG).show()
+                    }
                     return@launch
                 }
                 
                 val inputStream = requireContext().contentResolver.openInputStream(generatedImageUri!!)
                 if (inputStream == null) {
-                    Toast.makeText(context, "Download failed: Cannot open image stream", Toast.LENGTH_LONG).show()
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, "❌ Không thể mở file ảnh", Toast.LENGTH_LONG).show()
+                    }
                     return@launch
                 }
                 
@@ -661,11 +693,13 @@ class AIImagesFragment : Fragment() {
                 inputStream.close()
                 
                 if (bitmap != null) {
-                    val fileName = "ai_generated_image_${System.currentTimeMillis()}.jpg"
+                    val fileName = "SuperPhoto_AI_${System.currentTimeMillis()}.jpg"
                     
                     // Kiểm tra quyền storage trước khi lưu
                     if (!StorageHelper.isExternalStorageWritable()) {
-                        Toast.makeText(context, "Download failed: External storage not writable", Toast.LENGTH_LONG).show()
+                        activity?.runOnUiThread {
+                            Toast.makeText(context, "❌ Bộ nhớ ngoài không thể ghi", Toast.LENGTH_LONG).show()
+                        }
                         return@launch
                     }
                     
@@ -673,23 +707,31 @@ class AIImagesFragment : Fragment() {
                         requireContext(),
                         bitmap,
                         fileName,
-                        "ai_images"
+                        "SuperPhoto_Downloads"
                     )
                     
-                    if (savedFile != null) {
-                        Toast.makeText(context, "✅ Ảnh đã được lưu: ${savedFile.absolutePath}", Toast.LENGTH_LONG).show()
-                        // Cập nhật file path text
-                        filePathText.text = "Saved: ${savedFile.absolutePath}"
-                    } else {
-                        Toast.makeText(context, "Download failed: Storage permission denied or insufficient space", Toast.LENGTH_LONG).show()
+                    activity?.runOnUiThread {
+                        if (savedFile != null) {
+                            Toast.makeText(context, "✅ Ảnh đã được tải xuống thành công!\n📁 ${savedFile.absolutePath}", Toast.LENGTH_LONG).show()
+                            // Cập nhật file path text
+                            filePathText.text = "Downloaded: ${savedFile.absolutePath}"
+                        } else {
+                            Toast.makeText(context, "❌ Không thể lưu ảnh. Kiểm tra quyền truy cập hoặc dung lượng bộ nhớ", Toast.LENGTH_LONG).show()
+                        }
                     }
                 } else {
-                    Toast.makeText(context, "Download failed: Cannot decode image bitmap", Toast.LENGTH_LONG).show()
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, "❌ Không thể giải mã ảnh", Toast.LENGTH_LONG).show()
+                    }
                 }
             } catch (e: SecurityException) {
-                Toast.makeText(context, "Download failed: Storage permission denied", Toast.LENGTH_LONG).show()
+                activity?.runOnUiThread {
+                    Toast.makeText(context, "❌ Không có quyền truy cập bộ nhớ", Toast.LENGTH_LONG).show()
+                }
             } catch (e: Exception) {
-                Toast.makeText(context, "Download failed: ${e.message ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+                activity?.runOnUiThread {
+                    Toast.makeText(context, "❌ Lỗi tải xuống: ${e.message ?: "Lỗi không xác định"}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

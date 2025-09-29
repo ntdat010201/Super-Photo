@@ -7,7 +7,7 @@ package com.superphoto.config
 object APIConfig {
     
     // Gemini AI Configuration
-    const val GEMINI_API_KEY = "AIzaSyAKz9L1LMv9hNuTfPxx5wuJbTwEdtShIYY" // API key configured
+    const val GEMINI_API_KEY = "AIzaSyDFbFWoIzCS61f1x5t2vkbQjSdMuliBQAQ" // API key updated
     const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
     const val GEMINI_MODEL = "gemini-2.5-flash" // Latest model for free tier
     const val GEMINI_MODEL_PRO = "gemini-2.5-pro" // Latest pro model for complex tasks
