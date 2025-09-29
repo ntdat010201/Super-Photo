@@ -9,8 +9,8 @@ object APIConfig {
     // Gemini AI Configuration
     const val GEMINI_API_KEY = "AIzaSyAKz9L1LMv9hNuTfPxx5wuJbTwEdtShIYY" // API key configured
     const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
-    const val GEMINI_MODEL = "gemini-2.5-flash" // Optimized for free tier - 15 RPM
-    const val GEMINI_MODEL_PRO = "gemini-2.5-pro" // For complex tasks - 5 RPM
+    const val GEMINI_MODEL = "gemini-2.5-flash" // Latest model for free tier
+    const val GEMINI_MODEL_PRO = "gemini-2.5-pro" // Latest pro model for complex tasks
     
     // Free Tier Limits (per minute)
     const val FREE_TIER_FLASH_RPM = 15 // Gemini 2.5 Flash
@@ -19,6 +19,10 @@ object APIConfig {
     // AI Generation API Configuration
     const val AI_GENERATION_API_KEY = "DEMO_MODE" // Using Gemini as fallback for demo
     const val AI_GENERATION_BASE_URL = "https://generativelanguage.googleapis.com" // Using Gemini for demo
+    
+    // Pollinations AI Configuration (Free Image Generation)
+    const val POLLINATIONS_BASE_URL = "https://image.pollinations.ai"
+    const val POLLINATIONS_API_KEY = "FREE" // Pollinations is free to use
     
     // API Endpoints
     const val GEMINI_GENERATE_CONTENT = "$GEMINI_BASE_URL/$GEMINI_MODEL:generateContent"
@@ -38,6 +42,11 @@ object APIConfig {
     const val API_TIMEOUT = 45000L // 45 seconds timeout (increased for free tier)
     const val CONNECT_TIMEOUT_SECONDS = 30L // Connection timeout in seconds
     const val READ_TIMEOUT_SECONDS = 90L // Read timeout in seconds (increased for free tier)
+    
+    // AI Repository Configuration
+    const val GEMINI_ENDPOINT = "/generateContent"
+    const val MAX_TOKENS = 1024
+    const val TEMPERATURE = 0.7f
     
     // Rate Limiting Configuration
     const val REQUEST_DELAY_MS = 4000L // 4 seconds between requests for free tier

@@ -30,14 +30,18 @@ import com.example.superphoto.data.model.AspectRatio
 import com.example.superphoto.data.model.StyleOption
 import com.example.superphoto.utils.StorageHelper
 import android.graphics.BitmapFactory
+import android.graphics.Bitmap
 import com.example.superphoto.utils.GenerationStatusManager
+import com.superphoto.ai.AIRepository
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import android.provider.OpenableColumns
 
 class AIImagesFragment : Fragment() {
 
     // Dependency injection
     private val aiGenerationManager: AIGenerationManager by inject()
+    private val aiRepository: AIRepository by inject()
     
     // Status manager
     private lateinit var statusManager: GenerationStatusManager
@@ -90,8 +94,10 @@ class AIImagesFragment : Fragment() {
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
-                selectedImageUri = uri
-                updateUploadArea(uri)
+                if (validateImage(uri)) {
+                    selectedImageUri = uri
+                    updateUploadArea(uri)
+                }
             }
         }
     }
@@ -382,11 +388,6 @@ class AIImagesFragment : Fragment() {
             return
         }
 
-        if (selectedImageUri == null) {
-            Toast.makeText(context, "Please select an image", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         if (isGenerating) {
             Toast.makeText(context, "Generation in progress, please wait...", Toast.LENGTH_SHORT).show()
             return
@@ -400,93 +401,151 @@ class AIImagesFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                // Convert selectedStyle to StyleOption enum
-                val styleOption = when (selectedStyle.lowercase()) {
-                    "photo" -> StyleOption.PHOTO
-                    "anime" -> StyleOption.ANIME
-                    "illustration" -> StyleOption.ILLUSTRATION
-                    else -> StyleOption.NONE
+                if (selectedImageUri != null) {
+                    // Image + Text generation workflow
+                    generateFromImageAndText(prompt)
+                } else {
+                    // Text-only generation workflow
+                    generateFromTextOnly(prompt)
                 }
-
-                // Convert selectedAspectRatio to AspectRatio enum
-                val aspectRatioOption = when (selectedAspectRatio) {
-                    "16:9" -> AspectRatio.LANDSCAPE
-                    "9:16" -> AspectRatio.PORTRAIT
-                    "3:4" -> AspectRatio.PHOTO
-                    else -> AspectRatio.SQUARE
-                }
-
-                val result = aiGenerationManager.generateAIImage(
-                    sourceImageUri = selectedImageUri,
-                    prompt = prompt,
-                    aspectRatio = aspectRatioOption.value,
-                    style = styleOption.value
-                )
-
-                result.fold(
-                    onSuccess = { response ->
-                        Toast.makeText(
-                            context,
-                            "AI image generation started! Task ID: ${response.taskId}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        
-                        // Start status polling
-                        statusManager.startStatusPolling(response.taskId, object : GenerationStatusManager.StatusCallback {
-                            override fun onProgress(progress: Int, message: String) {
-                                // Update progress on main thread
-                                activity?.runOnUiThread {
-                                    Toast.makeText(context, "Progress: $progress% - $message", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                            
-                            override fun onCompleted(resultUri: Uri?) {
-                                activity?.runOnUiThread {
-                                    isGenerating = false
-                                    updateGenerateButtonState()
-                                    
-                                    if (resultUri != null) {
-                                        generatedImageUri = resultUri
-                                        showGeneratedImage()
-                                    } else {
-                                        hideLoadingState()
-                                        Toast.makeText(context, "Generation completed but no result available", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-                            
-                            override fun onFailed(error: String) {
-                                activity?.runOnUiThread {
-                                    isGenerating = false
-                                    updateGenerateButtonState()
-                                    hideLoadingState()
-                                    Toast.makeText(context, "Generation failed: $error", Toast.LENGTH_LONG).show()
-                                }
-                            }
-                        })
-                    },
-                    onFailure = { exception ->
-                        isGenerating = false
-                        updateGenerateButtonState()
-                        Toast.makeText(
-                            context,
-                            "Error: ${exception.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        hideLoadingState()
-                    }
-                )
             } catch (e: Exception) {
-                isGenerating = false
-                updateGenerateButtonState()
-                Toast.makeText(
-                    context,
-                    "Error: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-                hideLoadingState()
+                activity?.runOnUiThread {
+                    isGenerating = false
+                    updateGenerateButtonState()
+                    hideLoadingState()
+                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
+    }
+    
+    private suspend fun generateFromImageAndText(userPrompt: String) {
+        try {
+            // Phase 1: Loading and analyzing image
+            activity?.runOnUiThread {
+                showLoadingWithMessage("Đang tải và phân tích ảnh...")
+            }
+            
+            // Step 1: Load bitmap from URI
+            val bitmap = loadBitmapFromUri(selectedImageUri!!)
+            if (bitmap == null) {
+                throw Exception("Failed to load selected image")
+            }
+            
+            // Phase 2: AI analysis with Gemini
+            activity?.runOnUiThread {
+                showLoadingWithMessage("🤖 AI đang phân tích đặc điểm khuôn mặt...")
+            }
+            
+            // Step 2: Generate description using Gemini
+            val descriptionResult = aiRepository.generateImageDescription(bitmap, userPrompt)
+            if (descriptionResult.isFailure) {
+                throw Exception("Failed to analyze image: ${descriptionResult.exceptionOrNull()?.message}")
+            }
+            
+            val enhancedPrompt = descriptionResult.getOrThrow()
+            
+            // Phase 3: Image generation
+            activity?.runOnUiThread {
+                showLoadingWithMessage("🎨 Đang tạo ảnh với yêu cầu của bạn...")
+            }
+            
+            // Step 3: Generate image using Pollinations
+            val imageResult = aiRepository.generateImageFromText(
+                prompt = enhancedPrompt,
+                aspectRatio = selectedAspectRatio,
+                style = selectedStyle.lowercase()
+            )
+            
+            if (imageResult.isSuccess) {
+                activity?.runOnUiThread {
+                    showLoadingWithMessage("✅ Hoàn thành! Đang tải ảnh...")
+                }
+                val generatedBitmap = imageResult.getOrThrow()
+                activity?.runOnUiThread {
+                    isGenerating = false
+                    updateGenerateButtonState()
+                    showGeneratedImage(generatedBitmap)
+                }
+            } else {
+                throw Exception("Failed to generate image: ${imageResult.exceptionOrNull()?.message}")
+            }
+            
+        } catch (e: Exception) {
+            activity?.runOnUiThread {
+                isGenerating = false
+                updateGenerateButtonState()
+                hideLoadingState()
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+    
+    private suspend fun generateFromTextOnly(prompt: String) {
+        try {
+            val imageResult = aiRepository.generateImageFromText(
+                prompt = prompt,
+                aspectRatio = selectedAspectRatio,
+                style = selectedStyle.lowercase()
+            )
+            
+            if (imageResult.isSuccess) {
+                val generatedBitmap = imageResult.getOrThrow()
+                activity?.runOnUiThread {
+                    isGenerating = false
+                    updateGenerateButtonState()
+                    showGeneratedImage(generatedBitmap)
+                }
+            } else {
+                throw Exception("Failed to generate image: ${imageResult.exceptionOrNull()?.message}")
+            }
+            
+        } catch (e: Exception) {
+            activity?.runOnUiThread {
+                isGenerating = false
+                updateGenerateButtonState()
+                hideLoadingState()
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+    
+    private fun loadBitmapFromUri(uri: Uri): Bitmap? {
+        return try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            BitmapFactory.decodeStream(inputStream)
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    private fun showGeneratedImage(bitmap: Bitmap) {
+        try {
+            // Save bitmap to storage
+            val savedFile = StorageHelper.saveImageToExternalStorage(
+                requireContext(), 
+                bitmap, 
+                "AI_Generated_${System.currentTimeMillis()}.jpg",
+                "ai_images"
+            )
+            
+            if (savedFile != null) {
+                generatedImageUri = Uri.fromFile(savedFile)
+                resultImageView.setImageBitmap(bitmap)
+                filePathText.text = savedFile.absolutePath
+                showResultSection()
+                Toast.makeText(context, "Image generated successfully!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Failed to save generated image", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error saving image: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun showResultSection() {
+        resultSection.visibility = View.VISIBLE
+        hideLoadingState()
     }
 
     private fun showLoadingState() {
@@ -509,32 +568,26 @@ class AIImagesFragment : Fragment() {
             Toast.LENGTH_SHORT
         ).show()
     }
-
-    private fun showGeneratedImage() {
-        // Hide loading
-        loadingProgress.visibility = View.GONE
+    
+    private fun showLoadingWithMessage(message: String) {
+        // Show result section
+        resultSection.visibility = View.VISIBLE
         
-        // Show result image and buttons
-        resultImageView.visibility = View.VISIBLE
-        downloadButton.visibility = View.VISIBLE
-        shareButton.visibility = View.VISIBLE
+        // Show loading, hide result image and buttons
+        loadingProgress.visibility = View.VISIBLE
+        resultImageView.visibility = View.GONE
+        downloadButton.visibility = View.GONE
+        shareButton.visibility = View.GONE
         
-        // Show file path if available
-        generatedImageUri?.let { uri ->
-            val filePath = uri.path ?: "Unknown path"
-            filePathText.text = "📁 Saved to: $filePath"
-            filePathText.visibility = View.VISIBLE
-        }
+        // Disable generate button during processing
+        generateButton.isEnabled = false
+        generateButton.alpha = 0.6f
         
-        // Load generated image
-        resultImageView.setImageURI(generatedImageUri)
-        
-        // Re-enable generate button
-        generateButton.isEnabled = true
-        generateButton.alpha = 1f
-        
-        Toast.makeText(context, "AI image generated successfully!", Toast.LENGTH_SHORT).show()
+        // Show progress message
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
+
+
 
     private fun hideLoadingState() {
         // Hide loading and result section
@@ -548,9 +601,8 @@ class AIImagesFragment : Fragment() {
     }
 
     private fun updateGenerateButtonState() {
-        val hasImage = selectedImageUri != null
         val hasPrompt = promptEditText.text.toString().trim().isNotEmpty()
-        val canGenerate = hasImage && hasPrompt && !isGenerating
+        val canGenerate = hasPrompt && !isGenerating
         
         generateButton.isEnabled = canGenerate
         
@@ -666,5 +718,78 @@ class AIImagesFragment : Fragment() {
         fun newInstance(): AIImagesFragment {
             return AIImagesFragment()
         }
+    }
+    
+    /**
+     * Validate uploaded image for quality and format
+     */
+    private fun validateImage(uri: Uri): Boolean {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
+            BitmapFactory.decodeStream(inputStream, null, options)
+            inputStream?.close()
+            
+            val width = options.outWidth
+            val height = options.outHeight
+            val mimeType = options.outMimeType
+            
+            // Check if image is too small (minimum 200x200)
+            if (width < 200 || height < 200) {
+                showError("Ảnh quá nhỏ. Vui lòng chọn ảnh có kích thước tối thiểu 200x200 pixels")
+                return false
+            }
+            
+            // Check if image is too large (maximum 4000x4000)
+            if (width > 4000 || height > 4000) {
+                showError("Ảnh quá lớn. Vui lòng chọn ảnh có kích thước tối đa 4000x4000 pixels")
+                return false
+            }
+            
+            // Check supported formats
+            val supportedFormats = listOf("image/jpeg", "image/jpg", "image/png", "image/webp")
+            if (mimeType !in supportedFormats) {
+                showError("Định dạng ảnh không được hỗ trợ. Vui lòng chọn ảnh JPEG, PNG hoặc WebP")
+                return false
+            }
+            
+            // Check file size (max 10MB)
+            val fileSize = getFileSize(uri)
+            if (fileSize > 10 * 1024 * 1024) { // 10MB
+                showError("Kích thước file quá lớn. Vui lòng chọn ảnh dưới 10MB")
+                return false
+            }
+            
+            return true
+            
+        } catch (e: Exception) {
+            showError("Không thể đọc ảnh. Vui lòng chọn ảnh khác")
+            return false
+        }
+    }
+    
+    /**
+     * Get file size from URI
+     */
+    private fun getFileSize(uri: Uri): Long {
+        return try {
+            val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
+                it.moveToFirst()
+                it.getLong(sizeIndex)
+            } ?: 0L
+        } catch (e: Exception) {
+            0L
+        }
+    }
+    
+    /**
+     * Show error message to user
+     */
+    private fun showError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 }

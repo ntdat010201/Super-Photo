@@ -87,4 +87,14 @@ dependencies {
     
     // Permission handling
     implementation("com.karumi:dexter:6.2.3")
+    
+    // HTTP Client for AI APIs
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    
+    // JSON parsing
+    implementation("org.json:json:20231013")
+    
+    // Base64 encoding
+    implementation("commons-codec:commons-codec:1.15")
 }
