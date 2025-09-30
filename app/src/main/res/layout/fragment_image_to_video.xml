@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:gravity="center"
-                android:text="Upload only JPG and PNG images."
+                android:text="Select multiple images for video creation"
                 android:textColor="@color/ai_text_secondary"
                 android:textSize="14sp" />
 
@@ -47,13 +47,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="File Size &lt;10Mb, Dimension &gt; 300px"
+                android:text="JPG/PNG only • Max 10MB • Min 300px"
                 android:textColor="@color/ai_text_tertiary"
                 android:textSize="12sp" />
 
         </LinearLayout>
 
-        <!-- Selected Images RecyclerView -->
+        <!-- Selected Images Section -->
         <LinearLayout
             android:id="@+id/selectedImagesContainer"
             android:layout_width="match_parent"
@@ -63,8 +63,40 @@
             android:orientation="vertical"
             android:visibility="gone">
 
+            <!-- Images Count and Add More Button -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/imagesCountText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Selected Images (0)"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/addMoreImagesButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/ai_duration_button"
+                    android:text="+ Add More"
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="16dp"
+                    android:minWidth="0dp" />
+
+            </LinearLayout>
+
+            <!-- Selected Images RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/selectedImagesRecyclerView"
+                android:id="@+id/rcv_img_to_video"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -112,10 +144,7 @@
 
             </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rcv_img_to_video"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+
 
         </LinearLayout>
 
@@ -287,7 +316,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="16dp"
             android:orientation="vertical"
             android:background="@drawable/ai_generate_button"
             android:layout_marginHorizontal="20dp">
@@ -303,6 +332,129 @@
                 android:textColor="@color/ai_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Video Preview Section -->
+        <LinearLayout
+            android:id="@+id/videoPreviewSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="32dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Section Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Generated Video"
+                android:textColor="@color/ai_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- Loading State -->
+            <LinearLayout
+                android:id="@+id/loadingContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ai_card_background"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="16dp"
+                    android:indeterminateTint="@color/ai_accent" />
+
+                <TextView
+                    android:id="@+id/progressText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Generating video..."
+                    android:textColor="@color/ai_text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/progressPercentage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textColor="@color/ai_text_secondary"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Video Result -->
+            <LinearLayout
+                android:id="@+id/videoResultContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ai_card_background"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <!-- Video Preview -->
+                <VideoView
+                    android:id="@+id/videoPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/ai_input_background" />
+
+                <!-- Video Controls -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <Button
+                        android:id="@+id/playPauseButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/ai_secondary_button"
+                        android:text="▶ Play"
+                        android:textColor="@color/ai_text_primary"
+                        android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/downloadVideoButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/ai_accent_button"
+                        android:text="💾 Download"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/shareVideoButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/ai_secondary_button"
+                        android:text="📤 Share"
+                        android:textColor="@color/ai_text_primary"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>

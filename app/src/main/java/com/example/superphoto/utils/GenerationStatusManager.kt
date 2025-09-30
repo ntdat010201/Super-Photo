@@ -91,35 +91,61 @@ class GenerationStatusManager(
     
     private suspend fun downloadResult(resultUrl: String, taskId: String, callback: StatusCallback) {
         try {
+            android.util.Log.d("GenerationStatusManager", "Starting download for taskId: $taskId, resultUrl: $resultUrl")
+            
             // First try to get download info from API
             val downloadResult = repository.downloadGeneratedContent(taskId)
             
             downloadResult.fold(
                 onSuccess = { downloadResponse ->
+                    android.util.Log.d("GenerationStatusManager", "Download API success: ${downloadResponse.downloadUrl}")
                     val downloadUrl = downloadResponse.downloadUrl
                     val fileName = downloadResponse.fileName
                     downloadFile(downloadUrl, fileName, callback)
                 },
-                onFailure = {
+                onFailure = { exception ->
+                    android.util.Log.w("GenerationStatusManager", "Download API failed, using fallback: ${exception.message}")
                     // Fallback to direct download from result URL
                     val fileName = "generated_${taskId}_${System.currentTimeMillis()}.${getFileExtension(resultUrl)}"
                     downloadFile(resultUrl, fileName, callback)
                 }
             )
         } catch (e: Exception) {
+            android.util.Log.e("GenerationStatusManager", "Download failed", e)
             callback.onFailed("Download failed: ${e.message}")
         }
     }
     
     private suspend fun downloadFile(url: String, fileName: String, callback: StatusCallback) {
         try {
-            // Download file to external storage using StorageHelper
-            val connection = URL(url).openConnection()
-            connection.connect()
+            android.util.Log.d("GenerationStatusManager", "Downloading file from URL: $url, fileName: $fileName")
             
-            val inputStream = connection.getInputStream()
-            val buffer = inputStream.readBytes()
-            inputStream.close()
+            val buffer = if (url.startsWith("file://")) {
+                // Handle local file URLs (demo mode)
+                android.util.Log.d("GenerationStatusManager", "Processing local file URL")
+                val localFilePath = url.removePrefix("file://")
+                val localFile = File(localFilePath)
+                
+                if (localFile.exists()) {
+                    android.util.Log.d("GenerationStatusManager", "Local file exists: ${localFile.absolutePath}, size: ${localFile.length()}")
+                    localFile.readBytes()
+                } else {
+                    android.util.Log.e("GenerationStatusManager", "Local file does not exist: $localFilePath")
+                    throw Exception("Local file not found: $localFilePath")
+                }
+            } else {
+                // Handle remote URLs
+                android.util.Log.d("GenerationStatusManager", "Processing remote URL")
+                val connection = URL(url).openConnection()
+                connection.connect()
+                
+                val inputStream = connection.getInputStream()
+                val bytes = inputStream.readBytes()
+                inputStream.close()
+                bytes
+            }
+            
+            android.util.Log.d("GenerationStatusManager", "Downloaded ${buffer.size} bytes")
             
             // Determine file type and save accordingly
             val fileExtension = getFileExtension(url)
@@ -129,11 +155,17 @@ class GenerationStatusManager(
                 else -> "ai_files"
             }
             
+            android.util.Log.d("GenerationStatusManager", "File extension: $fileExtension, subfolder: $subfolder")
+            
             val savedFile = if (fileExtension == "mp4") {
                 // For video files, use StorageHelper to save to external storage
-                StorageHelper.saveVideoToExternalStorage(context, buffer, fileName, subfolder)
+                android.util.Log.d("GenerationStatusManager", "Saving video using StorageHelper")
+                val result = StorageHelper.saveVideoToExternalStorage(context, buffer, fileName, subfolder)
+                android.util.Log.d("GenerationStatusManager", "StorageHelper result: $result")
+                result
             } else {
                 // For other files, save to Downloads folder
+                android.util.Log.d("GenerationStatusManager", "Saving to Downloads folder")
                 val downloadsDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SuperPhoto")
                 if (!downloadsDir.exists()) {
                     downloadsDir.mkdirs()
@@ -144,14 +176,17 @@ class GenerationStatusManager(
             }
             
             if (savedFile != null) {
+                android.util.Log.d("GenerationStatusManager", "File saved successfully: ${savedFile.absolutePath}")
                 val fileUri = Uri.fromFile(savedFile)
                 callback.onCompleted(fileUri)
                 Toast.makeText(context, "📁 File saved to: ${savedFile.absolutePath}", Toast.LENGTH_LONG).show()
             } else {
+                android.util.Log.e("GenerationStatusManager", "savedFile is null")
                 callback.onFailed("Failed to save file to external storage")
             }
             
         } catch (e: Exception) {
+            android.util.Log.e("GenerationStatusManager", "File download failed", e)
             callback.onFailed("File download failed: ${e.message}")
         }
     }

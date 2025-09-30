@@ -180,19 +180,28 @@ object StorageHelper {
         subDirName: String = "videos"
     ): File? {
         return try {
+            Log.d(TAG, "saveVideoToExternalStorage called with fileName: $fileName, subDirName: $subDirName, dataSize: ${videoData.size}")
+            
             // Kiểm tra quyền lưu trữ trước khi lưu
             if (!hasStoragePermission(context)) {
                 Log.e(TAG, "Storage permission not granted")
                 return null
             }
 
+            Log.d(TAG, "Storage permission granted, Android SDK: ${android.os.Build.VERSION.SDK_INT}")
+
             // Sử dụng MediaStore cho Android 10+ (API 29+)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            val result = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                Log.d(TAG, "Using MediaStore for Android 10+")
                 saveVideoUsingMediaStore(context, videoData, fileName, subDirName)
             } else {
+                Log.d(TAG, "Using legacy method for Android 9-")
                 // Sử dụng cách cũ cho Android 9 trở xuống
                 saveVideoLegacy(context, videoData, fileName, subDirName)
             }
+            
+            Log.d(TAG, "saveVideoToExternalStorage result: $result")
+            result
         } catch (e: Exception) {
             Log.e(TAG, "Error saving video to external storage", e)
             null
@@ -220,21 +229,27 @@ object StorageHelper {
         val uri = resolver.insert(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
         
         return uri?.let { videoUri ->
-            resolver.openOutputStream(videoUri)?.use { outputStream ->
-                outputStream.write(videoData)
-                Log.d(TAG, "Video saved successfully using MediaStore: $videoUri")
-                
-                // Trả về File object để tương thích với code hiện tại
-                val cursor = resolver.query(videoUri, arrayOf(android.provider.MediaStore.Video.Media.DATA), null, null, null)
-                cursor?.use {
-                    if (it.moveToFirst()) {
-                        val columnIndex = it.getColumnIndex(android.provider.MediaStore.Video.Media.DATA)
-                        if (columnIndex >= 0) {
-                            val filePath = it.getString(columnIndex)
-                            File(filePath)
-                        } else null
-                    } else null
+            try {
+                resolver.openOutputStream(videoUri)?.use { outputStream ->
+                    outputStream.write(videoData)
+                    Log.d(TAG, "Video saved successfully using MediaStore: $videoUri")
                 }
+                
+                // Tạo một file tạm thời để trả về thay vì dựa vào MediaStore path
+                // Vì trên Android 10+ việc lấy file path từ MediaStore có thể không hoạt động
+                val tempDir = File(context.cacheDir, "temp_videos")
+                if (!tempDir.exists()) {
+                    tempDir.mkdirs()
+                }
+                val tempFile = File(tempDir, fileName)
+                tempFile.writeBytes(videoData)
+                
+                Log.d(TAG, "Created temp file for compatibility: ${tempFile.absolutePath}")
+                tempFile
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error saving video using MediaStore", e)
+                null
             }
         }
     }

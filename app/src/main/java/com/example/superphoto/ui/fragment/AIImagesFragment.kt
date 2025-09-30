@@ -86,6 +86,7 @@ class AIImagesFragment : Fragment() {
     private var selectedStyle = "None" // Default style
     private var selectedImageUri: Uri? = null
     private var generatedImageUri: Uri? = null
+    private var generatedBitmap: Bitmap? = null // Bitmap tạm thời cho ảnh AI đã generate
     private var isGenerating = false
 
     // Image picker launcher
@@ -521,34 +522,23 @@ class AIImagesFragment : Fragment() {
     
     private fun showGeneratedImage(bitmap: Bitmap) {
         try {
-            // Save bitmap to storage
-            val savedFile = StorageHelper.saveImageToExternalStorage(
-                requireContext(), 
-                bitmap, 
-                "AI_Generated_${System.currentTimeMillis()}.jpg",
-                "ai_images"
-            )
+            // Lưu bitmap tạm thời để có thể download sau
+            generatedBitmap = bitmap
+            generatedImageUri = null // Reset URI vì chưa lưu file
             
-            if (savedFile != null) {
-                generatedImageUri = Uri.fromFile(savedFile)
-                
-                // Hiển thị ảnh trong ImageView
-                resultImageView.setImageBitmap(bitmap)
-                
-                // Hiển thị đường dẫn file
-                filePathText.text = "Saved: ${savedFile.absolutePath}"
-                filePathText.visibility = View.VISIBLE
-                
-                // Hiển thị section kết quả với ảnh và nút download
-                showResultSection()
-                
-                Toast.makeText(context, "✅ Ảnh AI đã được tạo thành công!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "❌ Không thể lưu ảnh đã tạo", Toast.LENGTH_SHORT).show()
-                hideLoadingState()
-            }
+            // Hiển thị ảnh trong ImageView
+            resultImageView.setImageBitmap(bitmap)
+            
+            // Hiển thị thông báo ảnh đã sẵn sàng
+            filePathText.text = "Ảnh AI đã được tạo - Nhấn Download để lưu vào máy"
+            filePathText.visibility = View.VISIBLE
+            
+            // Hiển thị section kết quả với ảnh và nút download
+            showResultSection()
+            
+            Toast.makeText(context, "✅ Ảnh AI đã được tạo! Nhấn Download để lưu vào máy", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
-            Toast.makeText(context, "❌ Lỗi khi lưu ảnh: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "❌ Lỗi khi hiển thị ảnh: ${e.message}", Toast.LENGTH_SHORT).show()
             hideLoadingState()
         }
     }
@@ -655,7 +645,7 @@ class AIImagesFragment : Fragment() {
     }
 
     private fun downloadGeneratedImage() {
-        if (generatedImageUri == null) {
+        if (generatedBitmap == null) {
             Toast.makeText(context, "❌ Không có ảnh để tải xuống", Toast.LENGTH_SHORT).show()
             return
         }
@@ -673,55 +663,35 @@ class AIImagesFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                // Kiểm tra URI có hợp lệ không
-                if (generatedImageUri.toString().isEmpty()) {
+                val fileName = "SuperPhoto_AI_${System.currentTimeMillis()}.jpg"
+                
+                // Kiểm tra quyền storage trước khi lưu
+                if (!StorageHelper.isExternalStorageWritable()) {
                     activity?.runOnUiThread {
-                        Toast.makeText(context, "❌ URI ảnh không hợp lệ", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "❌ Bộ nhớ ngoài không thể ghi", Toast.LENGTH_LONG).show()
                     }
                     return@launch
                 }
                 
-                val inputStream = requireContext().contentResolver.openInputStream(generatedImageUri!!)
-                if (inputStream == null) {
-                    activity?.runOnUiThread {
-                        Toast.makeText(context, "❌ Không thể mở file ảnh", Toast.LENGTH_LONG).show()
-                    }
-                    return@launch
-                }
+                // Lưu bitmap trực tiếp vào storage
+                val savedFile = StorageHelper.saveImageToExternalStorage(
+                    requireContext(),
+                    generatedBitmap!!,
+                    fileName,
+                    "SuperPhoto_Downloads"
+                )
                 
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                inputStream.close()
-                
-                if (bitmap != null) {
-                    val fileName = "SuperPhoto_AI_${System.currentTimeMillis()}.jpg"
-                    
-                    // Kiểm tra quyền storage trước khi lưu
-                    if (!StorageHelper.isExternalStorageWritable()) {
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, "❌ Bộ nhớ ngoài không thể ghi", Toast.LENGTH_LONG).show()
-                        }
-                        return@launch
-                    }
-                    
-                    val savedFile = StorageHelper.saveImageToExternalStorage(
-                        requireContext(),
-                        bitmap,
-                        fileName,
-                        "SuperPhoto_Downloads"
-                    )
-                    
-                    activity?.runOnUiThread {
-                        if (savedFile != null) {
-                            Toast.makeText(context, "✅ Ảnh đã được tải xuống thành công!\n📁 ${savedFile.absolutePath}", Toast.LENGTH_LONG).show()
-                            // Cập nhật file path text
-                            filePathText.text = "Downloaded: ${savedFile.absolutePath}"
-                        } else {
-                            Toast.makeText(context, "❌ Không thể lưu ảnh. Kiểm tra quyền truy cập hoặc dung lượng bộ nhớ", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                } else {
-                    activity?.runOnUiThread {
-                        Toast.makeText(context, "❌ Không thể giải mã ảnh", Toast.LENGTH_LONG).show()
+                activity?.runOnUiThread {
+                    if (savedFile != null) {
+                        // Cập nhật URI sau khi lưu thành công
+                        generatedImageUri = Uri.fromFile(savedFile)
+                        
+                        Toast.makeText(context, "✅ Ảnh đã được tải xuống thành công!\n📁 ${savedFile.absolutePath}", Toast.LENGTH_LONG).show()
+                        
+                        // Cập nhật file path text
+                        filePathText.text = "Downloaded: ${savedFile.absolutePath}"
+                    } else {
+                        Toast.makeText(context, "❌ Không thể lưu ảnh. Kiểm tra quyền truy cập hoặc dung lượng bộ nhớ", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: SecurityException) {
@@ -737,22 +707,40 @@ class AIImagesFragment : Fragment() {
     }
 
     private fun shareGeneratedImage() {
-        if (generatedImageUri == null) {
-            Toast.makeText(context, "No image to share", Toast.LENGTH_SHORT).show()
+        if (generatedBitmap == null) {
+            Toast.makeText(context, "❌ Không có ảnh để chia sẻ", Toast.LENGTH_SHORT).show()
             return
         }
 
         try {
-            val shareIntent = Intent(Intent.ACTION_SEND)
-            shareIntent.type = "image/*"
-            shareIntent.putExtra(Intent.EXTRA_STREAM, generatedImageUri)
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // Nếu chưa có URI (chưa download), tạo file tạm thời để share
+            val shareUri = if (generatedImageUri != null) {
+                generatedImageUri
+            } else {
+                // Tạo file tạm thời trong cache để share
+                val tempFile = StorageHelper.saveImageToExternalStorage(
+                    requireContext(),
+                    generatedBitmap!!,
+                    "temp_share_${System.currentTimeMillis()}.jpg",
+                    "temp"
+                )
+                if (tempFile != null) Uri.fromFile(tempFile) else null
+            }
             
-            val chooser = Intent.createChooser(shareIntent, "Share AI Generated Image")
-            startActivity(chooser)
+            if (shareUri != null) {
+                val shareIntent = Intent(Intent.ACTION_SEND)
+                shareIntent.type = "image/*"
+                shareIntent.putExtra(Intent.EXTRA_STREAM, shareUri)
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                
+                val chooser = Intent.createChooser(shareIntent, "Chia sẻ ảnh AI")
+                startActivity(chooser)
+            } else {
+                Toast.makeText(context, "❌ Không thể tạo file để chia sẻ", Toast.LENGTH_SHORT).show()
+            }
             
         } catch (e: Exception) {
-            Toast.makeText(context, "Failed to share image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "❌ Lỗi khi chia sẻ ảnh: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
